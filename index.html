@@ -338,16 +338,17 @@
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeBackgroundImage()">Reset Background</button>
                         </div>
                         
-                        <!-- Video File Upload Option -->
+                        <!-- Video File Upload Option (Max 10 MB limit) -->
                         <div class="form-group" style="margin-top: 12px;">
-                            <label>Upload Video File (.mp4 - Stored in Browser & Survives Refreshes)</label>
+                            <label>Upload Video File (.mp4 - Max 10 MB, Stored & Persists)</label>
                             <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeVideoFile()">Reset Video File</button>
                         </div>
 
+                        <!-- OneDrive / Direct Video URL Input -->
                         <div class="form-group">
-                            <label>Or Video File URL (.mp4)</label>
-                            <input type="url" id="videoUrlInput" placeholder="./safety-video.mp4">
+                            <label>Or OneDrive / Direct Video URL (.mp4)</label>
+                            <input type="url" id="videoUrlInput" placeholder="Paste OneDrive sharing link or direct MP4 URL">
                             <button class="btn" style="padding: 8px; font-size: 13px;" onclick="updateVideoUrl()">Update Video URL</button>
                         </div>
                     </div>
@@ -395,7 +396,7 @@
         setVideoSource(currentVideoUrl);
         const videoInput = document.getElementById('videoUrlInput');
         if (videoInput && !localStorage.getItem('saved_video_file')) {
-            videoInput.value = currentVideoUrl;
+            videoInput.value = localStorage.getItem('saved_video_url') || '';
         }
     });
 
@@ -498,14 +499,14 @@
         broadcastConfig({ bgImage: '' });
     }
 
-    // Handle direct video file upload and store into LocalStorage (survives page refreshes)
+    // Enforce 10 MB video file upload limit and save reliably to browser storage
     function updateVideoFile(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        const maxVideoMB = 100;
+        const maxVideoMB = 10;
         if (file.size > maxVideoMB * 1024 * 1024) {
-            alert(`Video file is too large. Please upload an MP4 file under ${maxVideoMB} MB.`);
+            alert(`Video file is too large! Please upload an MP4 file under ${maxVideoMB} MB.`);
             e.target.value = "";
             return;
         }
@@ -519,9 +520,9 @@
                 currentVideoUrl = videoBase64;
                 setVideoSource(videoBase64);
                 broadcastConfig({ videoUrl: videoBase64 });
-                alert("Video file saved to storage successfully! It will persist even if you refresh.");
+                alert("Video file (under 10 MB) successfully saved to storage!");
             } catch(err) {
-                alert("File size is too large for browser LocalStorage quota limits (typically ~5-10MB limit depending on browser). Try a smaller video clip or use a URL link.");
+                alert("Storage error. Browser storage limit reached.");
             }
         };
         reader.readAsDataURL(file);
@@ -538,8 +539,26 @@
         alert("Video reset to default.");
     }
 
+    // Helper function to convert sharing links into direct streamable links
+    function formatVideoUrl(url) {
+        url = url.trim();
+        // Handle OneDrive sharing links (e.g., changing download parameters or embedding)
+        if (url.includes('1drv.ms') || url.includes('sharepoint.com')) {
+            if (!url.includes('download=1')) {
+                url += (url.includes('?') ? '&' : '?') + 'download=1';
+            }
+        }
+        return url;
+    }
+
     function updateVideoUrl() {
-        const inputUrl = document.getElementById('videoUrlInput').value.trim() || DEFAULT_VIDEO;
+        let inputUrl = document.getElementById('videoUrlInput').value.trim();
+        if (!inputUrl) {
+            inputUrl = DEFAULT_VIDEO;
+        } else {
+            inputUrl = formatVideoUrl(inputUrl);
+        }
+
         localStorage.removeItem('saved_video_file');
         currentVideoUrl = inputUrl;
         localStorage.setItem('saved_video_url', inputUrl);
