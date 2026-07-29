@@ -131,21 +131,15 @@
         .video-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
             border-radius: 8px;
             overflow: hidden;
             background: #000;
             margin-bottom: 16px;
         }
 
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
+        video {
             width: 100%;
-            height: 100%;
-            border: 0;
+            display: block;
         }
 
         .quiz-question { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
@@ -247,8 +241,8 @@
                             <label for="phoneNo">Phone Number</label>
                             <input type="tel" id="phoneNo" required placeholder="e.g. +1 555-0199">
                         </div>
-                        <div id="conn-error" class="alert-error">Failed to connect to Admin Desk. Verify the Desk Code.</div>
-                        <button type="submit" class="btn">Submit for Approval</button>
+                        <div id="conn-error" class="alert-error">Failed to connect to Admin Desk. Ensure Admin Panel is OPEN on laptop with matching 4-digit code.</div>
+                        <button type="submit" class="btn" id="submitRegBtn">Submit for Approval</button>
                     </form>
                 </div>
 
@@ -267,11 +261,14 @@
                 <!-- STEP 3: Video -->
                 <div id="step-video" class="step-panel">
                     <h2>Safety Orientation Video</h2>
-                    <p class="subtitle">Watch the complete video below. The assessment button will unlock automatically.</p>
+                    <p class="subtitle">Watch the complete video to unlock the assessment test.</p>
                     <div class="video-container">
-                        <iframe id="videoIframe" src="https://drive.google.com/file/d/1vKptPIdiITgpJOdozc5KKSqSUyVOs4n6/preview" allow="autoplay"></iframe>
+                        <video id="orientationVideo" controls playsinline controlsList="nodownload" preload="metadata">
+                            <source id="videoSource" src="./safety-video.mp4" type="video/mp4">
+                            Your browser does not support HTML video.
+                        </video>
                     </div>
-                    <button id="videoNextBtn" class="btn" disabled onclick="showStep('step-quiz')">Proceed to Assessment (Unlocking in 60s...)</button>
+                    <button id="videoNextBtn" class="btn" disabled>Proceed to Assessment (Watch Video First)</button>
                 </div>
 
                 <!-- STEP 4: Quiz -->
@@ -341,8 +338,8 @@
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeBackgroundImage()">Reset Background</button>
                         </div>
                         <div class="form-group">
-                            <label>Google Drive File ID or Embed URL</label>
-                            <input type="text" id="videoUrlInput" placeholder="Paste Google Drive URL or File ID">
+                            <label>Video File URL (.mp4)</label>
+                            <input type="url" id="videoUrlInput" placeholder="./safety-video.mp4">
                             <button class="btn" style="padding: 8px; font-size: 13px;" onclick="updateVideoUrl()">Update Video</button>
                         </div>
                     </div>
@@ -369,36 +366,14 @@
     </main>
 
 <script>
-    const DEFAULT_DRIVE_ID = "1vKptPIdiITgpJOdozc5KKSqSUyVOs4n6";
+    const DEFAULT_VIDEO = "./safety-video.mp4";
     const ADMIN_PASSWORD = "admin123";
     let isAdminAuthenticated = false;
     let peer = null;
     let peerConnections = {}; 
     let visitorRecords = {};
     let activeConn = null; 
-    let currentVideoUrl = localStorage.getItem('saved_video_url') || DEFAULT_DRIVE_ID;
-
-    function formatDriveIframeUrl(url) {
-        if (!url) return `https://drive.google.com/file/d/${DEFAULT_DRIVE_ID}/preview`;
-        
-        // Extract ID if a full Google Drive URL was pasted
-        if (url.includes('drive.google.com')) {
-            const match = url.match(/\/file\/d\/([^\/]+)/);
-            if (match && match[1]) {
-                return `https://drive.google.com/file/d/${match[1]}/preview`;
-            }
-        }
-        
-        // If it's already a preview embed link
-        if (url.includes('/preview')) return url;
-
-        // If just the raw file ID was entered
-        if (/^[a-zA-Z0-9_-]{25,}$/.test(url)) {
-            return `https://drive.google.com/file/d/${url}/preview`;
-        }
-
-        return url;
-    }
+    let currentVideoUrl = localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
     window.addEventListener('DOMContentLoaded', () => {
         const savedBg = localStorage.getItem('saved_bg_image');
@@ -453,30 +428,6 @@
     function showStep(stepId) {
         document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(stepId).classList.add('active');
-
-        // Start countdown timer when video step opens
-        if (stepId === 'step-video') {
-            startVideoUnlockTimer();
-        }
-    }
-
-    function startVideoUnlockTimer() {
-        const btn = document.getElementById('videoNextBtn');
-        let secondsLeft = 60; // Set to expected video duration (in seconds)
-
-        btn.disabled = true;
-        btn.textContent = `Proceed to Assessment (Unlocking in ${secondsLeft}s...)`;
-
-        const countdown = setInterval(() => {
-            secondsLeft--;
-            if (secondsLeft > 0) {
-                btn.textContent = `Proceed to Assessment (Unlocking in ${secondsLeft}s...)`;
-            } else {
-                clearInterval(countdown);
-                btn.disabled = false;
-                btn.textContent = "Proceed to Assessment";
-            }
-        }, 1000);
     }
 
     function updateBackgroundImage(e) {
@@ -537,7 +488,7 @@
     }
 
     function updateVideoUrl() {
-        const inputUrl = document.getElementById('videoUrlInput').value.trim();
+        const inputUrl = document.getElementById('videoUrlInput').value.trim() || DEFAULT_VIDEO;
         currentVideoUrl = inputUrl;
         localStorage.setItem('saved_video_url', inputUrl);
         setVideoSource(inputUrl);
@@ -546,11 +497,27 @@
     }
 
     function setVideoSource(url) {
-        const iframe = document.getElementById('videoIframe');
-        if (iframe) {
-            iframe.src = formatDriveIframeUrl(url);
+        const player = document.getElementById('orientationVideo');
+        const source = document.getElementById('videoSource');
+        if (source && player) {
+            source.src = url;
+            player.load();
         }
     }
+
+    // Unlock Assessment Button when video finishes playing
+    const videoPlayer = document.getElementById('orientationVideo');
+    const videoNextBtn = document.getElementById('videoNextBtn');
+
+    videoPlayer.addEventListener('ended', () => {
+        videoNextBtn.disabled = false;
+        videoNextBtn.textContent = "Proceed to Assessment";
+        videoNextBtn.style.background = "var(--success)";
+    });
+
+    videoNextBtn.addEventListener('click', () => {
+        showStep('step-quiz');
+    });
 
     function broadcastConfig(config) {
         Object.values(peerConnections).forEach(conn => {
@@ -562,7 +529,7 @@
         const code = Math.floor(1000 + Math.random() * 9000).toString(); 
         document.getElementById('desk-code-display').innerText = "DESK CODE: " + code;
 
-        peer = new Peer('company_admin_desk_' + code);
+        peer = new Peer('company_admin_desk_' + code, { debug: 1 });
 
         peer.on('connection', (conn) => {
             conn.on('data', (data) => {
@@ -594,10 +561,14 @@
         const name = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phoneNo').value.trim();
         const connErr = document.getElementById('conn-error');
+        const submitBtn = document.getElementById('submitRegBtn');
 
         connErr.style.display = 'none';
 
         if (!code || !name || !phone) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Connecting to Desk...";
 
         const visitorPeer = new Peer();
 
@@ -609,6 +580,9 @@
             activeConn = visitorPeer.connect('company_admin_desk_' + code);
 
             activeConn.on('open', () => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit for Approval";
+
                 activeConn.send({
                     type: 'register',
                     visitor: {
@@ -641,10 +615,20 @@
                 }
             });
 
-            activeConn.on('error', () => { connErr.style.display = 'block'; });
+            setTimeout(() => {
+                if (!activeConn || !activeConn.open) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit for Approval";
+                    connErr.style.display = 'block';
+                }
+            }, 6000);
         });
 
-        visitorPeer.on('error', () => { connErr.style.display = 'block'; });
+        visitorPeer.on('error', () => { 
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit for Approval";
+            connErr.style.display = 'block'; 
+        });
     });
 
     document.getElementById('quiz-form').addEventListener('submit', (e) => {
