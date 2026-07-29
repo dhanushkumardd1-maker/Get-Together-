@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Visitor Portal & Admin Control</title>
-    <!-- PeerJS for Direct Mobile-to-Laptop Connection -->
+    <!-- PeerJS with reliable public STUN/TURN server configuration for GitHub Pages -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -386,13 +386,23 @@
     // Retrieve saved video file or URL immediately upon loading script
     let currentVideoUrl = localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
+    // Public STUN configuration to bypass GitHub Pages cross-network/firewall blocks
+    const peerConfig = {
+        config: {
+            'iceServers': [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        },
+        debug: 1
+    };
+
     window.addEventListener('DOMContentLoaded', () => {
         const savedBg = localStorage.getItem('saved_bg_image');
         if (savedBg) {
             document.body.style.backgroundImage = `url('${savedBg}')`;
         }
 
-        // Automatically set video source from storage on refresh
         setVideoSource(currentVideoUrl);
         const videoInput = document.getElementById('videoUrlInput');
         if (videoInput && !localStorage.getItem('saved_video_file')) {
@@ -499,7 +509,6 @@
         broadcastConfig({ bgImage: '' });
     }
 
-    // Enforce 10 MB video file upload limit and save reliably to browser storage
     function updateVideoFile(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -539,10 +548,8 @@
         alert("Video reset to default.");
     }
 
-    // Helper function to convert sharing links into direct streamable links
     function formatVideoUrl(url) {
         url = url.trim();
-        // Handle OneDrive sharing links (e.g., changing download parameters or embedding)
         if (url.includes('1drv.ms') || url.includes('sharepoint.com')) {
             if (!url.includes('download=1')) {
                 url += (url.includes('?') ? '&' : '?') + 'download=1';
@@ -576,7 +583,6 @@
         }
     }
 
-    // Unlock Assessment Button when video finishes playing
     const videoPlayer = document.getElementById('orientationVideo');
     const videoNextBtn = document.getElementById('videoNextBtn');
 
@@ -600,7 +606,8 @@
         const code = Math.floor(1000 + Math.random() * 9000).toString(); 
         document.getElementById('desk-code-display').innerText = "DESK CODE: " + code;
 
-        peer = new Peer('company_admin_desk_' + code, { debug: 1 });
+        // Apply STUN server configurations so cross-network WebRTC connects successfully on GitHub Pages
+        peer = new Peer('company_admin_desk_' + code, peerConfig);
 
         peer.on('connection', (conn) => {
             conn.on('data', (data) => {
@@ -641,7 +648,8 @@
         submitBtn.disabled = true;
         submitBtn.textContent = "Connecting to Desk...";
 
-        const visitorPeer = new Peer();
+        // Apply STUN server configuration to visitor peer setup as well
+        const visitorPeer = new Peer(undefined, peerConfig);
 
         visitorPeer.on('open', () => {
             const visitorId = 'vis_' + Date.now();
