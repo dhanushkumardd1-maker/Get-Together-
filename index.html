@@ -233,7 +233,7 @@
 <body>
 
     <header>
-        <div class="logo">Company Onboarding Portal</div>
+        <div class="logo">MPlastics Toys and Engineering Private Limited, Hosur </div>
         <div class="view-toggle">
             <button class="toggle-btn active" id="tab-visitor" onclick="switchView('visitor')">Visitor View</button>
             <button class="toggle-btn" id="tab-admin" onclick="switchView('admin')">Admin Panel</button>
@@ -247,20 +247,20 @@
                 
                 <!-- STEP 1: Registration Form -->
                 <div id="step-register" class="step-panel active">
-                    <h2>Visitor Registration</h2>
+                    <h2>General Safety Instruction</h2>
                     <p class="subtitle">Connect to the admin desk code and enter your details.</p>
                     <form id="visitor-form">
                         <div class="form-group">
                             <label for="adminCodeInput">Admin Desk Code (4-Digits)</label>
-                            <input type="text" id="adminCodeInput" required placeholder="e.g. 1234" maxlength="4">
+                            <input type="text" id="adminCodeInput" required placeholder="" maxlength="4">
                         </div>
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" required placeholder="e.g. John Doe">
+                            <input type="text" id="fullName" required placeholder="">
                         </div>
                         <div class="form-group">
                             <label for="phoneNo">Phone Number</label>
-                            <input type="tel" id="phoneNo" required placeholder="e.g. +1 555-0199">
+                            <input type="tel" id="phoneNo" required placeholder="">
                         </div>
                         <div id="conn-error" class="alert-error">Failed to connect to Admin Desk. Ensure Admin Panel is OPEN on laptop with matching 4-digit code.</div>
                         <button type="submit" class="btn" id="submitRegBtn">Submit for Approval</button>
@@ -274,7 +274,7 @@
                     <div class="status-box">
                         <p>Status: <strong id="approval-status" style="color: #d97706;">PENDING ADMIN APPROVAL</strong></p>
                         <p style="font-size: 13px; color: #64748b; margin-top: 8px;">
-                            Please wait. This screen automatically proceeds once approved on the laptop admin panel.
+                            Please wait. This screen automatically proceeds once approved on the security officer.
                         </p>
                     </div>
                 </div>
@@ -343,10 +343,10 @@
                 <!-- Admin Password Screen -->
                 <div id="admin-login-sec">
                     <h2>Admin Authentication</h2>
-                    <p class="subtitle">Enter password to launch the admin desk session.</p>
+                    <p class="subtitle">Enter password to launch the admin login.</p>
                     <div class="form-group">
                         <label for="adminPass">Password</label>
-                        <input type="password" id="adminPass" placeholder="Enter password (default: admin123)">
+                        <input type="password" id="adminPass" placeholder="Enter password">
                     </div>
                     <div id="admin-pass-err" class="alert-error">Incorrect password. Try again.</div>
                     <button class="btn" onclick="verifyAdminPassword()">Login to Admin Panel</button>
@@ -406,7 +406,7 @@
 
 <script>
     const DEFAULT_VIDEO = "https://www.w3schools.com/html/mov_bbb.mp4";
-    const ADMIN_PASSWORD = "admin123";
+    const ADMIN_PASSWORD = "z+";
     let isAdminAuthenticated = false;
     let peer = null;
     let peerConnections = {}; 
