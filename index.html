@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Visitor Portal & Admin Control</title>
-    <!-- Firebase SDKs for Real-time Cloud Sync -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- PeerJS for direct Mobile-to-Laptop P2P Connection -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -177,6 +176,18 @@
         }
         .btn-approve { background: var(--success); color: #fff; }
         .btn-reject { background: var(--error); color: #fff; }
+        
+        .code-box {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: var(--primary);
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 12px 0;
+        }
     </style>
 </head>
 <body>
@@ -194,11 +205,15 @@
         <div id="view-visitor" class="view-panel active">
             <div class="card">
                 
-                <!-- STEP 1: Form -->
+                <!-- STEP 1: Registration Form -->
                 <div id="step-register" class="step-panel active">
                     <h2>Visitor Registration</h2>
-                    <p class="subtitle">Please enter your details to request access.</p>
+                    <p class="subtitle">Connect to the admin desk code and enter your details.</p>
                     <form id="visitor-form">
+                        <div class="form-group">
+                            <label for="adminCodeInput">Admin Desk Code (4-Digits)</label>
+                            <input type="text" id="adminCodeInput" required placeholder="e.g. 1234" maxlength="4">
+                        </div>
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
                             <input type="text" id="fullName" required placeholder="e.g. John Doe">
@@ -207,6 +222,7 @@
                             <label for="phoneNo">Phone Number</label>
                             <input type="tel" id="phoneNo" required placeholder="e.g. +1 555-0199">
                         </div>
+                        <div id="conn-error" class="alert-error">Failed to connect to Admin Desk. Verify the Desk Code.</div>
                         <button type="submit" class="btn">Submit for Approval</button>
                     </form>
                 </div>
@@ -214,7 +230,7 @@
                 <!-- STEP 2: Pending Screen -->
                 <div id="step-pending" class="step-panel">
                     <h2>Waiting for Approval</h2>
-                    <p class="subtitle">Your request has been sent to reception/admin.</p>
+                    <p class="subtitle">Connected to Admin Desk. Awaiting authorization...</p>
                     <div class="status-box">
                         <p>Status: <strong id="approval-status" style="color: #d97706;">PENDING ADMIN APPROVAL</strong></p>
                         <p style="font-size: 13px; color: #64748b; margin-top: 8px;">
@@ -277,7 +293,7 @@
                 <!-- Admin Password Screen -->
                 <div id="admin-login-sec">
                     <h2>Admin Authentication</h2>
-                    <p class="subtitle">Enter password to view live visitor requests.</p>
+                    <p class="subtitle">Enter password to launch the admin desk session.</p>
                     <div class="form-group">
                         <label for="adminPass">Password</label>
                         <input type="password" id="adminPass" placeholder="Enter password (default: admin123)">
@@ -289,8 +305,10 @@
                 <!-- Admin Real-Time Table -->
                 <div id="admin-dashboard-sec" style="display: none;">
                     <h2>Admin Approval Dashboard</h2>
-                    <p class="subtitle">Approve or reject incoming visitor requests in real time.</p>
+                    <p class="subtitle">Ask visitors on mobile to type this 4-digit code in their registration form:</p>
                     
+                    <div class="code-box" id="desk-code-display">----</div>
+
                     <table>
                         <thead>
                             <tr>
@@ -302,7 +320,7 @@
                             </tr>
                         </thead>
                         <tbody id="visitor-table-body">
-                            <tr><td colspan="5" style="text-align: center;">Connecting to live database...</td></tr>
+                            <tr><td colspan="5" style="text-align: center;">Waiting for mobile visitors to connect...</td></tr>
                         </tbody>
                     </table>
                     <button class="btn" style="background:#64748b; margin-top:20px;" onclick="adminLogout()">Logout Admin</button>
@@ -312,22 +330,14 @@
     </main>
 
 <script>
-    // =========================================================================
-    // STEP 1: PASTE YOUR FIREBASE REALTIME DATABASE CONFIG BELOW
-    // =========================================================================
-    const firebaseConfig = {
-        databaseURL: "https://YOUR-DATABASE-NAME-default-rtdb.firebaseio.com/"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     const ADMIN_PASSWORD = "admin123";
     let isAdminAuthenticated = false;
-    let activeVisitorId = localStorage.getItem('active_visitor_id') || null;
+    let peer = null;
+    let peerConnections = {}; // Map of visitorId -> peer connection
+    let visitorRecords = {};
+    let activeConn = null; // For Visitor mode
 
-    // View Switching
+    // View Switcher
     function switchView(viewName) {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
@@ -338,13 +348,10 @@
         } else {
             document.getElementById('view-admin').classList.add('active');
             document.getElementById('tab-admin').classList.add('active');
-            if (isAdminAuthenticated) {
-                listenToAdminData();
-            }
         }
     }
 
-    // Password Check
+    // Password Check & Peer Server Host Init
     function verifyAdminPassword() {
         const input = document.getElementById('adminPass').value;
         const err = document.getElementById('admin-pass-err');
@@ -354,7 +361,8 @@
             err.style.display = 'none';
             document.getElementById('admin-login-sec').style.display = 'none';
             document.getElementById('admin-dashboard-sec').style.display = 'block';
-            listenToAdminData();
+            
+            initAdminPeerHost();
         } else {
             err.style.display = 'block';
         }
@@ -362,6 +370,7 @@
 
     function adminLogout() {
         isAdminAuthenticated = false;
+        if(peer) peer.destroy();
         document.getElementById('adminPass').value = '';
         document.getElementById('admin-login-sec').style.display = 'block';
         document.getElementById('admin-dashboard-sec').style.display = 'none';
@@ -373,47 +382,85 @@
         document.getElementById(stepId).classList.add('active');
     }
 
-    // Visitor Submit Form
-    document.getElementById('visitor-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('fullName').value.trim();
-        const phone = document.getElementById('phoneNo').value.trim();
+    // Initialize Admin Laptop Host using WebRTC
+    function initAdminPeerHost() {
+        const code = Math.floor(1000 + Math.random() * 9000).toString(); // Generate random 4-digit ID
+        document.getElementById('desk-code-display').innerText = "DESK CODE: " + code;
 
-        if (!name || !phone) return;
+        peer = new Peer('company_admin_desk_' + code);
 
-        activeVisitorId = 'vis_' + Date.now();
-        localStorage.setItem('active_visitor_id', activeVisitorId);
-
-        // Push data to Firebase cloud database
-        db.ref('visitors/' + activeVisitorId).set({
-            id: activeVisitorId,
-            name: name,
-            phone: phone,
-            status: 'pending',
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        });
-
-        showStep('step-pending');
-        listenToVisitorStatus();
-    });
-
-    // Listen Live to Status changes on Visitor's Phone
-    function listenToVisitorStatus() {
-        if (!activeVisitorId) return;
-
-        db.ref('visitors/' + activeVisitorId).on('value', (snapshot) => {
-            const current = snapshot.val();
-            if (current) {
-                const pendingStepActive = document.getElementById('step-pending').classList.contains('active');
-                if (current.status === 'approved' && pendingStepActive) {
-                    showStep('step-video');
-                } else if (current.status === 'rejected' && pendingStepActive) {
-                    document.getElementById('approval-status').innerText = "ACCESS REJECTED BY ADMIN";
-                    document.getElementById('approval-status').style.color = "var(--error)";
+        peer.on('connection', (conn) => {
+            conn.on('data', (data) => {
+                if (data.type === 'register') {
+                    peerConnections[data.visitor.id] = conn;
+                    visitorRecords[data.visitor.id] = data.visitor;
+                    renderAdminTable();
+                } else if (data.type === 'completed') {
+                    if (visitorRecords[data.visitorId]) {
+                        visitorRecords[data.visitorId].status = 'completed';
+                        renderAdminTable();
+                    }
                 }
-            }
+            });
         });
     }
+
+    // Visitor Submit & P2P Connect
+    document.getElementById('visitor-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('adminCodeInput').value.trim();
+        const name = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phoneNo').value.trim();
+        const connErr = document.getElementById('conn-error');
+
+        connErr.style.display = 'none';
+
+        if (!code || !name || !phone) return;
+
+        // Connect to Admin Laptop
+        const visitorPeer = new Peer();
+
+        visitorPeer.on('open', () => {
+            const visitorId = 'vis_' + Date.now();
+            activeConn = visitorPeer.connect('company_admin_desk_' + code);
+
+            activeConn.on('open', () => {
+                // Send registration to Laptop
+                activeConn.send({
+                    type: 'register',
+                    visitor: {
+                        id: visitorId,
+                        name: name,
+                        phone: phone,
+                        status: 'pending',
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }
+                });
+
+                showStep('step-pending');
+            });
+
+            // Listen for Admin Approval/Rejection payload
+            activeConn.on('data', (data) => {
+                if (data.type === 'status_update') {
+                    if (data.status === 'approved') {
+                        showStep('step-video');
+                    } else if (data.status === 'rejected') {
+                        document.getElementById('approval-status').innerText = "ACCESS REJECTED BY ADMIN";
+                        document.getElementById('approval-status').style.color = "var(--error)";
+                    }
+                }
+            });
+
+            activeConn.on('error', () => {
+                connErr.style.display = 'block';
+            });
+        });
+
+        visitorPeer.on('error', () => {
+            connErr.style.display = 'block';
+        });
+    });
 
     // Video End Trigger
     const video = document.getElementById('orientationVideo');
@@ -436,18 +483,15 @@
         }
 
         if (score === total) {
-            db.ref('visitors/' + activeVisitorId).once('value', (snapshot) => {
-                const current = snapshot.val();
-                document.getElementById('cert-name').innerText = current ? current.name : "Visitor";
-                document.getElementById('cert-phone').innerText = current ? current.phone : "";
-                document.getElementById('cert-date').innerText = new Date().toLocaleString();
+            document.getElementById('cert-name').innerText = document.getElementById('fullName').value;
+            document.getElementById('cert-phone').innerText = document.getElementById('phoneNo').value;
+            document.getElementById('cert-date').innerText = new Date().toLocaleString();
 
-                if (current) {
-                    db.ref('visitors/' + activeVisitorId).update({ status: 'completed' });
-                }
+            if (activeConn) {
+                activeConn.send({ type: 'completed' });
+            }
 
-                showStep('step-certificate');
-            });
+            showStep('step-certificate');
         } else {
             const err = document.getElementById('quiz-error');
             err.style.display = 'block';
@@ -455,49 +499,50 @@
         }
     });
 
-    // Live Admin Control (Laptop View)
+    // Admin Control Actions
     function setVisitorStatus(id, newStatus) {
-        db.ref('visitors/' + id).update({ status: newStatus });
-    }
-
-    function listenToAdminData() {
-        if (!isAdminAuthenticated) return;
-
-        db.ref('visitors').on('value', (snapshot) => {
-            const visitors = snapshot.val() || {};
-            const tbody = document.getElementById('visitor-table-body');
-            tbody.innerHTML = '';
-
-            const keys = Object.keys(visitors).reverse();
-
-            if (keys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No registration requests found.</td></tr>';
-                return;
+        if (visitorRecords[id]) {
+            visitorRecords[id].status = newStatus;
+            
+            // Notify Visitor Mobile Browser over WebRTC
+            if (peerConnections[id]) {
+                peerConnections[id].send({
+                    type: 'status_update',
+                    status: newStatus
+                });
             }
-
-            keys.forEach(id => {
-                const item = visitors[id];
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.timestamp}</td>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${item.phone}</td>
-                    <td><span class="badge badge-${item.status}">${item.status}</span></td>
-                    <td>
-                        ${item.status === 'pending' ? `
-                            <button class="action-btn btn-approve" onclick="setVisitorStatus('${id}', 'approved')">Approve</button>
-                            <button class="action-btn btn-reject" onclick="setVisitorStatus('${id}', 'rejected')">Reject</button>
-                        ` : '---'}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        });
+            renderAdminTable();
+        }
     }
 
-    // Auto-resume visitor state on page load/refresh
-    if (activeVisitorId) {
-        listenToVisitorStatus();
+    function renderAdminTable() {
+        const tbody = document.getElementById('visitor-table-body');
+        tbody.innerHTML = '';
+
+        const keys = Object.keys(visitorRecords).reverse();
+
+        if (keys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Waiting for mobile visitors to connect...</td></tr>';
+            return;
+        }
+
+        keys.forEach(id => {
+            const item = visitorRecords[id];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.timestamp}</td>
+                <td><strong>${item.name}</strong></td>
+                <td>${item.phone}</td>
+                <td><span class="badge badge-${item.status}">${item.status}</span></td>
+                <td>
+                    ${item.status === 'pending' ? `
+                        <button class="action-btn btn-approve" onclick="setVisitorStatus('${id}', 'approved')">Approve</button>
+                        <button class="action-btn btn-reject" onclick="setVisitorStatus('${id}', 'rejected')">Reject</button>
+                    ` : '---'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
 </script>
 
