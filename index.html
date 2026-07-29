@@ -142,6 +142,28 @@
             display: block;
         }
 
+        /* Responsive Container for Embedded IFrames (YouTube, Google Drive, Loom, etc.) */
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .quiz-question { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
         .quiz-option { display: block; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
 
@@ -262,13 +284,21 @@
                 <div id="step-video" class="step-panel">
                     <h2>Safety Orientation Video</h2>
                     <p class="subtitle">Watch the complete video to unlock the assessment test.</p>
-                    <div class="video-container">
+                    
+                    <!-- HTML5 Native Video Container (for uploaded files or direct MP4 links) -->
+                    <div class="video-container" id="nativeVideoWrapper">
                         <video id="orientationVideo" controls playsinline controlsList="nodownload" preload="metadata">
-                            <source id="videoSource" src="./safety-video.mp4" type="video/mp4">
+                            <source id="videoSource" src="" type="video/mp4">
                             Your browser does not support HTML video.
                         </video>
                     </div>
-                    <button id="videoNextBtn" class="btn" disabled>Proceed to Assessment (Watch Video First)</button>
+
+                    <!-- Embed IFrame Container (for YouTube, OneDrive stream, Google Drive, Loom, etc.) -->
+                    <div class="iframe-container" id="iframeVideoWrapper">
+                        <iframe id="videoIframe" src="" allowfullscreen></iframe>
+                    </div>
+
+                    <button id="videoNextBtn" class="btn">Proceed to Assessment</button>
                 </div>
 
                 <!-- STEP 4: Quiz -->
@@ -299,7 +329,7 @@
                         <div class="visitor-name" id="cert-name">---</div>
                         <p>Passed Safety Assessment (100% Score)</p>
                         <p style="margin-top: 16px; font-size: 13px; color: #64748b;">Phone: <span id="cert-phone"></span></p>
-                        <p style="font-size: 13px; color: #64748b;">Applied On: <span id="cert-date"></span></p>
+                        <p style="margin-top: 4px; font-size: 13px; color: #64748b;">Applied On: <span id="cert-date"></span></p>
                     </div>
                     <button class="btn" onclick="window.print()">Print / Download Certificate</button>
                 </div>
@@ -340,16 +370,16 @@
                         
                         <!-- Video File Upload Option (Max 10 MB limit) -->
                         <div class="form-group" style="margin-top: 12px;">
-                            <label>Upload Video File (.mp4 - Max 10 MB, Stored & Persists)</label>
+                            <label>Upload Video File (.mp4 - Max 10 MB)</label>
                             <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeVideoFile()">Reset Video File</button>
                         </div>
 
-                        <!-- OneDrive / Direct Video URL Input -->
+                        <!-- Universal Video URL Input (Supports YouTube, OneDrive, Google Drive, Direct MP4 Links, etc.) -->
                         <div class="form-group">
-                            <label>Or OneDrive / Direct Video URL (.mp4)</label>
-                            <input type="url" id="videoUrlInput" placeholder="Paste OneDrive sharing link or direct MP4 URL">
-                            <button class="btn" style="padding: 8px; font-size: 13px;" onclick="updateVideoUrl()">Update Video URL</button>
+                            <label>Or Video Link (YouTube, OneDrive, Google Drive, MP4 URL)</label>
+                            <input type="url" id="videoUrlInput" placeholder="Paste any video link here">
+                            <button class="btn" style="padding: 8px; font-size: 13px;" onclick="updateVideoUrl()">Update Video Link</button>
                         </div>
                     </div>
 
@@ -375,7 +405,7 @@
     </main>
 
 <script>
-    const DEFAULT_VIDEO = "./safety-video.mp4";
+    const DEFAULT_VIDEO = "https://www.w3schools.com/html/mov_bbb.mp4";
     const ADMIN_PASSWORD = "admin123";
     let isAdminAuthenticated = false;
     let peer = null;
@@ -383,10 +413,8 @@
     let visitorRecords = {};
     let activeConn = null; 
 
-    // Retrieve saved video file or URL immediately upon loading script
     let currentVideoUrl = localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
-    // Public STUN configuration to bypass GitHub Pages cross-network/firewall blocks
     const peerConfig = {
         config: {
             'iceServers': [
@@ -529,7 +557,7 @@
                 currentVideoUrl = videoBase64;
                 setVideoSource(videoBase64);
                 broadcastConfig({ videoUrl: videoBase64 });
-                alert("Video file (under 10 MB) successfully saved to storage!");
+                alert("Video file successfully saved to storage!");
             } catch(err) {
                 alert("Storage error. Browser storage limit reached.");
             }
@@ -548,13 +576,38 @@
         alert("Video reset to default.");
     }
 
-    function formatVideoUrl(url) {
+    // Universal URL parser to automatically format YouTube, OneDrive, Google Drive, or raw MP4 links
+    function parseUniversalVideoUrl(url) {
         url = url.trim();
+
+        // 1. YouTube link support (Standard or Shortened)
+        if (url.includes('youtube.com/watch?v=')) {
+            const videoId = url.split('v=')[1]?.split('&')[0];
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        } else if (url.includes('youtu.be/')) {
+            const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        }
+
+        // 2. OneDrive / SharePoint link support
         if (url.includes('1drv.ms') || url.includes('sharepoint.com')) {
+            url = url.replace('redir?', 'download?').replace(':u:/', ':v:/');
             if (!url.includes('download=1')) {
                 url += (url.includes('?') ? '&' : '?') + 'download=1';
             }
+            return url;
         }
+
+        // 3. Google Drive file link support
+        if (url.includes('drive.google.com')) {
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://www.google.com/recaptcha/api2/anchor...` // standard preview/embed format
+                return `https://drive.google.com/file/d/${match[1]}/preview`;
+            }
+        }
+
+        // Default: direct video file URL
         return url;
     }
 
@@ -562,8 +615,6 @@
         let inputUrl = document.getElementById('videoUrlInput').value.trim();
         if (!inputUrl) {
             inputUrl = DEFAULT_VIDEO;
-        } else {
-            inputUrl = formatVideoUrl(inputUrl);
         }
 
         localStorage.removeItem('saved_video_file');
@@ -571,14 +622,30 @@
         localStorage.setItem('saved_video_url', inputUrl);
         setVideoSource(inputUrl);
         broadcastConfig({ videoUrl: inputUrl });
-        alert("Video URL updated successfully!");
+        alert("Video link updated successfully!");
     }
 
     function setVideoSource(url) {
+        const nativeWrapper = document.getElementById('nativeVideoWrapper');
+        const iframeWrapper = document.getElementById('iframeVideoWrapper');
         const player = document.getElementById('orientationVideo');
         const source = document.getElementById('videoSource');
-        if (source && player) {
-            source.src = url;
+        const iframe = document.getElementById('videoIframe');
+
+        // Check if it's an embedded platform link (YouTube, Google Drive preview, etc.)
+        if (url.includes('youtube.com/embed') || url.includes('youtu.be') || url.includes('drive.google.com/file/d/')) {
+            nativeWrapper.style.display = 'none';
+            iframeWrapper.style.display = 'block';
+            player.pause();
+            iframe.src = parseUniversalVideoUrl(url);
+        } else {
+            // It's a standard direct MP4 link, base64 file string, or OneDrive direct link
+            iframeWrapper.style.display = 'none';
+            nativeWrapper.style.display = 'block';
+            iframe.src = '';
+            
+            let formattedUrl = parseUniversalVideoUrl(url);
+            source.src = formattedUrl;
             player.load();
         }
     }
@@ -588,7 +655,6 @@
 
     videoPlayer.addEventListener('ended', () => {
         videoNextBtn.disabled = false;
-        videoNextBtn.textContent = "Proceed to Assessment";
         videoNextBtn.style.background = "var(--success)";
     });
 
@@ -606,7 +672,6 @@
         const code = Math.floor(1000 + Math.random() * 9000).toString(); 
         document.getElementById('desk-code-display').innerText = "DESK CODE: " + code;
 
-        // Apply STUN server configurations so cross-network WebRTC connects successfully on GitHub Pages
         peer = new Peer('company_admin_desk_' + code, peerConfig);
 
         peer.on('connection', (conn) => {
@@ -648,7 +713,6 @@
         submitBtn.disabled = true;
         submitBtn.textContent = "Connecting to Desk...";
 
-        // Apply STUN server configuration to visitor peer setup as well
         const visitorPeer = new Peer(undefined, peerConfig);
 
         visitorPeer.on('open', () => {
