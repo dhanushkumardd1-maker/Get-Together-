@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Visitor Portal & Admin Control</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+            --error: #dc2626;
+            --success: #16a34a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Top Header & Portal Switcher */
+        header {
+            width: 100%;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Main Container */
+        main {
+            width: 100%;
+            max-width: 800px;
+            padding: 32px 20px;
+        }
+
+        .view-panel {
+            display: none;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        /* Common Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            padding: 32px;
+            border: 1px solid var(--border);
+        }
+
+        h2 { font-size: 22px; margin-bottom: 8px; }
+        p.subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+
+        /* Visitor Form Styles */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        .status-box {
+            text-align: center;
+            padding: 24px;
+            border-radius: 8px;
+            background: #eff6ff;
+            border: 1px dashed var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        video { width: 100%; display: block; }
+
+        .quiz-question { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .quiz-option { display: block; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
+
+        .alert-error {
+            background: #fef2f2;
+            color: var(--error);
+            border: 1px solid #fecaca;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .certificate {
+            border: 8px double var(--primary);
+            padding: 30px;
+            text-align: center;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .certificate h1 { font-size: 24px; color: var(--primary-dark); margin-bottom: 12px; }
+        .certificate .visitor-name { font-size: 24px; font-weight: bold; margin: 16px 0; text-decoration: underline; }
+
+        /* Admin Table Styles */
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 16px; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        th { background: #f8fafc; font-weight: 600; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .badge-pending { background: #fef3c7; color: #d97706; }
+        .badge-approved { background: #dcfce7; color: #16a34a; }
+        .badge-rejected { background: #fee2e2; color: #dc2626; }
+        .badge-completed { background: #dbeafe; color: #2563eb; }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .btn-approve { background: var(--success); color: #fff; }
+        .btn-reject { background: var(--error); color: #fff; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Company Onboarding Portal</div>
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="switchView('visitor')">Visitor View</button>
+            <button class="toggle-btn" onclick="switchView('admin')">Admin Panel</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ================= VISITOR PORTAL VIEW ================= -->
+        <div id="view-visitor" class="view-panel active">
+            <div class="card">
+                
+                <!-- STEP 1: Registration Form -->
+                <div id="step-register" class="step-panel active">
+                    <h2>Visitor Registration</h2>
+                    <p class="subtitle">Please enter your details to request facility entry access.</p>
+                    <form id="visitor-form">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" required placeholder="e.g. John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNo">Phone Number</label>
+                            <input type="tel" id="phoneNo" required placeholder="e.g. +1 555-0199">
+                        </div>
+                        <button type="submit" class="btn">Submit for Approval</button>
+                    </form>
+                </div>
+
+                <!-- STEP 2: Pending Screen -->
+                <div id="step-pending" class="step-panel">
+                    <h2>Waiting for Approval</h2>
+                    <p class="subtitle">Your entry request is awaiting authorization from security/reception.</p>
+                    <div class="status-box">
+                        <p>Status: <strong id="approval-status" style="color: #d97706;">PENDING ADMIN APPROVAL</strong></p>
+                        <p style="font-size: 13px; color: #64748b; margin-top: 8px;">
+                            Please wait at reception. This screen unlocks automatically when approved.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Video -->
+                <div id="step-video" class="step-panel">
+                    <h2>Safety Orientation Video</h2>
+                    <p class="subtitle">Watch the entire video to unlock your assessment test.</p>
+                    <div class="video-container">
+                        <video id="orientationVideo" controls controlsList="nodownload">
+                            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <button id="videoNextBtn" class="btn" disabled onclick="showStep('step-quiz')">Proceed to Assessment (Locked)</button>
+                </div>
+
+                <!-- STEP 4: Quiz -->
+                <div id="step-quiz" class="step-panel">
+                    <h2>Visitor Safety Assessment</h2>
+                    <p class="subtitle">A score of 100% is required to receive an entry clearance certificate.</p>
+                    <form id="quiz-form">
+                        <div class="quiz-question">
+                            <p><strong>1. Are visitor badges required at all times inside the premises?</strong></p>
+                            <label class="quiz-option"><input type="radio" name="q1" value="yes" required> Yes</label>
+                            <label class="quiz-option"><input type="radio" name="q1" value="no"> No</label>
+                        </div>
+                        <div class="quiz-question">
+                            <p><strong>2. In case of an emergency evacuation, what should you do?</strong></p>
+                            <label class="quiz-option"><input type="radio" name="q2" value="a"> Work independently</label>
+                            <label class="quiz-option"><input type="radio" name="q2" value="b" required> Follow your assigned escort to the designated exit</label>
+                        </div>
+                        <div id="quiz-error" class="alert-error"></div>
+                        <button type="submit" class="btn">Submit Assessment</button>
+                    </form>
+                </div>
+
+                <!-- STEP 5: Certificate -->
+                <div id="step-certificate" class="step-panel">
+                    <div class="certificate">
+                        <h1>ENTRY CLEARANCE CERTIFICATE</h1>
+                        <p>Granted to</p>
+                        <div class="visitor-name" id="cert-name">---</div>
+                        <p>Passed Safety Assessment (100% Score)</p>
+                        <p style="margin-top: 16px; font-size: 13px; color: #64748b;">Phone: <span id="cert-phone"></span></p>
+                        <p style="font-size: 13px; color: #64748b;">Timestamp: <span id="cert-date"></span></p>
+                    </div>
+                    <button class="btn" onclick="window.print()">Print / Download Certificate</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= ADMIN DASHBOARD VIEW ================= -->
+        <div id="view-admin" class="view-panel">
+            <div class="card">
+                <h2>Admin Approval Dashboard</h2>
+                <p class="subtitle">Approve or reject visitor access requests in real time.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Visitor Name</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitor-table-body">
+                        <tr><td colspan="5" style="text-align: center;">No registration requests found.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+<script>
+    let activeVisitorId = null;
+
+    // View Switching Logic
+    function switchView(viewName) {
+        document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+
+        if (viewName === 'visitor') {
+            document.getElementById('view-visitor').classList.add('active');
+            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+        } else {
+            document.getElementById('view-admin').classList.add('active');
+            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
+            renderAdminTable();
+        }
+    }
+
+    // Step Switching Logic inside Visitor View
+    function showStep(stepId) {
+        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(stepId).classList.add('active');
+    }
+
+    // Storage Helper Functions
+    function getVisitors() {
+        return JSON.parse(localStorage.getItem('company_visitors') || '{}');
+    }
+
+    function saveVisitors(data) {
+        localStorage.setItem('company_visitors', JSON.stringify(data));
+        // Trigger custom event so both views stay synced immediately
+        window.dispatchEvent(new Event('storage_updated'));
+    }
+
+    // Step 1: Submit Registration
+    document.getElementById('visitor-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('fullName').value;
+        const phone = document.getElementById('phoneNo').value;
+        activeVisitorId = 'vis_' + Date.now();
+
+        const visitors = getVisitors();
+        visitors[activeVisitorId] = {
+            id: activeVisitorId,
+            name: name,
+            phone: phone,
+            status: 'pending',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        saveVisitors(visitors);
+        showStep('step-pending');
+    });
+
+    // Step 3: Video Watch Completion
+    const video = document.getElementById('orientationVideo');
+    const videoNextBtn = document.getElementById('videoNextBtn');
+    video.addEventListener('ended', () => {
+        videoNextBtn.disabled = false;
+        videoNextBtn.textContent = "Proceed to Assessment";
+    });
+
+    // Step 4: Submit Quiz
+    document.getElementById('quiz-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const answers = { q1: 'yes', q2: 'b' };
+        const formData = new FormData(e.target);
+        let score = 0;
+        let total = Object.keys(answers).length;
+
+        for (let [q, a] of Object.entries(answers)) {
+            if (formData.get(q) === a) score++;
+        }
+
+        if (score === total) {
+            const visitors = getVisitors();
+            const current = visitors[activeVisitorId];
+            
+            document.getElementById('cert-name').innerText = current.name;
+            document.getElementById('cert-phone').innerText = current.phone;
+            document.getElementById('cert-date').innerText = new Date().toLocaleString();
+
+            visitors[activeVisitorId].status = 'completed';
+            saveVisitors(visitors);
+
+            showStep('step-certificate');
+        } else {
+            const err = document.getElementById('quiz-error');
+            err.style.display = 'block';
+            err.innerText = `You scored ${score}/${total}. A 100% score is required to pass. Please review and try again.`;
+        }
+    });
+
+    // Admin Action Handlers
+    function setVisitorStatus(id, newStatus) {
+        const visitors = getVisitors();
+        if (visitors[id]) {
+            visitors[id].status = newStatus;
+            saveVisitors(visitors);
+        }
+    }
+
+    function renderAdminTable() {
+        const visitors = getVisitors();
+        const tbody = document.getElementById('visitor-table-body');
+        tbody.innerHTML = '';
+
+        const keys = Object.keys(visitors).reverse();
+
+        if (keys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No registration requests found.</td></tr>';
+            return;
+        }
+
+        keys.forEach(id => {
+            const item = visitors[id];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.timestamp}</td>
+                <td><strong>${item.name}</strong></td>
+                <td>${item.phone}</td>
+                <td><span class="badge badge-${item.status}">${item.status}</span></td>
+                <td>
+                    ${item.status === 'pending' ? `
+                        <button class="action-btn btn-approve" onclick="setVisitorStatus('${id}', 'approved')">Approve</button>
+                        <button class="action-btn btn-reject" onclick="setVisitorStatus('${id}', 'rejected')">Reject</button>
+                    ` : '---'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Sync views on storage events
+    window.addEventListener('storage_updated', syncState);
+    window.addEventListener('storage', syncState);
+
+    function syncState() {
+        renderAdminTable();
+
+        // If visitor is currently waiting, check if status changed
+        if (activeVisitorId) {
+            const visitors = getVisitors();
+            const current = visitors[activeVisitorId];
+            if (current) {
+                if (current.status === 'approved' && document.getElementById('step-pending').classList.contains('active')) {
+                    showStep('step-video');
+                } else if (current.status === 'rejected') {
+                    document.getElementById('approval-status').innerText = "ACCESS REJECTED BY ADMIN";
+                    document.getElementById('approval-status').style.color = "var(--error)";
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
