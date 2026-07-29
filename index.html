@@ -164,7 +164,6 @@
         .certificate h1 { font-size: 24px; color: var(--primary-dark); margin-bottom: 12px; }
         .certificate .visitor-name { font-size: 24px; font-weight: bold; margin: 16px 0; text-decoration: underline; }
 
-        /* Admin Dashboard & Controls */
         .admin-section {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -261,8 +260,9 @@
                     <h2>Safety Orientation Video</h2>
                     <p class="subtitle">Watch the complete video to unlock the assessment test.</p>
                     <div class="video-container">
-                        <video id="orientationVideo" controls controlsList="nodownload">
-                            <source id="videoSource" src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                        <video id="orientationVideo" controls playsinline crossorigin="anonymous" controlsList="nodownload" preload="auto">
+                            <source id="videoSource" src="https://lh3.googleusercontent.com/d/1vKptPIdiITgpJOdozc5KKSqSUyVOs4n6" type="video/mp4">
+                            Your browser does not support HTML video.
                         </video>
                     </div>
                     <button id="videoNextBtn" class="btn" disabled onclick="showStep('step-quiz')">Proceed to Assessment (Locked)</button>
@@ -335,8 +335,8 @@
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeBackgroundImage()">Reset Background</button>
                         </div>
                         <div class="form-group">
-                            <label>Assessment Video URL (.mp4)</label>
-                            <input type="url" id="videoUrlInput" placeholder="https://example.com/video.mp4">
+                            <label>Custom Video / Google Drive Link</label>
+                            <input type="url" id="videoUrlInput" placeholder="Paste Google Drive share link or MP4 URL">
                             <button class="btn" style="padding: 8px; font-size: 13px;" onclick="updateVideoUrl()">Update Video</button>
                         </div>
                     </div>
@@ -363,29 +363,40 @@
     </main>
 
 <script>
+    const DEFAULT_VIDEO = "https://lh3.googleusercontent.com/d/1vKptPIdiITgpJOdozc5KKSqSUyVOs4n6";
     const ADMIN_PASSWORD = "admin123";
     let isAdminAuthenticated = false;
     let peer = null;
     let peerConnections = {}; 
     let visitorRecords = {};
     let activeConn = null; 
-    let currentVideoUrl = localStorage.getItem('saved_video_url') || "https://www.w3schools.com/html/mov_bbb.mp4";
+    let currentVideoUrl = localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
-    // Load saved background and video settings on page startup
+    // Helper: Automatically converts Google Drive share links to streamable media links
+    function formatVideoLink(url) {
+        if (!url) return DEFAULT_VIDEO;
+        if (url.includes('drive.google.com') && url.includes('/file/d/')) {
+            const match = url.match(/\/file\/d\/([^\/]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+        }
+        return url;
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         const savedBg = localStorage.getItem('saved_bg_image');
         if (savedBg) {
             document.body.style.backgroundImage = `url('${savedBg}')`;
         }
 
-        if (currentVideoUrl) {
-            setVideoSource(currentVideoUrl);
-            const videoInput = document.getElementById('videoUrlInput');
-            if (videoInput) videoInput.value = currentVideoUrl;
+        setVideoSource(currentVideoUrl);
+        const videoInput = document.getElementById('videoUrlInput');
+        if (videoInput) {
+            videoInput.value = currentVideoUrl;
         }
     });
 
-    // View Switcher
     function switchView(viewName) {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
@@ -399,7 +410,6 @@
         }
     }
 
-    // Password Verification
     function verifyAdminPassword() {
         const input = document.getElementById('adminPass').value;
         const err = document.getElementById('admin-pass-err');
@@ -409,7 +419,6 @@
             err.style.display = 'none';
             document.getElementById('admin-login-sec').style.display = 'none';
             document.getElementById('admin-dashboard-sec').style.display = 'block';
-            
             initAdminPeerHost();
         } else {
             err.style.display = 'block';
@@ -430,12 +439,10 @@
         document.getElementById(stepId).classList.add('active');
     }
 
-    // Admin Customization Settings with Up to 10 MB Image Support + Canvas Compression
     function updateBackgroundImage(e) {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Check for 10 MB Limit (10 * 1024 * 1024 bytes)
         const maxMB = 10;
         if (file.size > maxMB * 1024 * 1024) {
             alert(`File size exceeds ${maxMB} MB. Please upload a smaller image.`);
@@ -448,9 +455,8 @@
             const img = new Image();
             img.src = event.target.result;
             img.onload = function() {
-                // Resize image via HTML Canvas to ensure it fits safely inside browser storage
                 const canvas = document.createElement('canvas');
-                const maxDimension = 1920; // Scale down 4K/huge photos to standard full HD width
+                const maxDimension = 1920; 
                 let width = img.width;
                 let height = img.height;
 
@@ -469,7 +475,6 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Export optimized JPEG data URL
                 const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
                 try {
@@ -477,7 +482,7 @@
                     document.body.style.backgroundImage = `url('${compressedDataUrl}')`;
                     broadcastConfig({ bgImage: compressedDataUrl });
                 } catch(err) {
-                    alert("Unable to save background image to storage. Try a slightly lower resolution image.");
+                    alert("Unable to save background image to storage.");
                 }
             };
         };
@@ -492,21 +497,21 @@
     }
 
     function updateVideoUrl() {
-        const url = document.getElementById('videoUrlInput').value.trim();
-        if (url) {
-            currentVideoUrl = url;
-            localStorage.setItem('saved_video_url', url);
-            setVideoSource(url);
-            broadcastConfig({ videoUrl: url });
-            alert("Video URL updated and saved!");
-        }
+        const inputUrl = document.getElementById('videoUrlInput').value.trim();
+        const formatted = formatVideoLink(inputUrl);
+        currentVideoUrl = formatted;
+        localStorage.setItem('saved_video_url', formatted);
+        setVideoSource(formatted);
+        broadcastConfig({ videoUrl: formatted });
+        alert("Video URL updated and saved!");
     }
 
     function setVideoSource(url) {
         const player = document.getElementById('orientationVideo');
         const source = document.getElementById('videoSource');
         if (source && player) {
-            source.src = url;
+            const formatted = formatVideoLink(url);
+            source.src = formatted;
             player.load();
         }
     }
@@ -517,7 +522,6 @@
         });
     }
 
-    // Initialize Admin Laptop Host using WebRTC
     function initAdminPeerHost() {
         const code = Math.floor(1000 + Math.random() * 9000).toString(); 
         document.getElementById('desk-code-display').innerText = "DESK CODE: " + code;
@@ -531,7 +535,6 @@
                     visitorRecords[data.visitor.id] = data.visitor;
                     renderAdminTable();
                     
-                    // Send current settings (background + video url) to new visitor
                     conn.send({
                         type: 'config_update',
                         config: { 
@@ -549,7 +552,6 @@
         });
     }
 
-    // Visitor Submit Form
     document.getElementById('visitor-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const code = document.getElementById('adminCodeInput').value.trim();
@@ -585,7 +587,6 @@
                 showStep('step-pending');
             });
 
-            // Listen for updates from Admin Laptop
             activeConn.on('data', (data) => {
                 if (data.type === 'status_update') {
                     if (data.status === 'approved') {
@@ -610,7 +611,6 @@
         visitorPeer.on('error', () => { connErr.style.display = 'block'; });
     });
 
-    // Video End Trigger
     const video = document.getElementById('orientationVideo');
     const videoNextBtn = document.getElementById('videoNextBtn');
     video.addEventListener('ended', () => {
@@ -618,7 +618,6 @@
         videoNextBtn.textContent = "Proceed to Assessment";
     });
 
-    // Quiz Submission
     document.getElementById('quiz-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const answers = { q1: 'yes', q2: 'b' };
@@ -648,7 +647,6 @@
         }
     });
 
-    // Admin Control Actions
     function setVisitorStatus(id, newStatus) {
         if (visitorRecords[id]) {
             visitorRecords[id].status = newStatus;
