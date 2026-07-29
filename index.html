@@ -39,11 +39,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .logo {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .logo { font-size: 18px; font-weight: 700; color: var(--primary); }
 
         .view-toggle {
             display: flex;
@@ -70,22 +66,11 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        /* Main Container */
-        main {
-            width: 100%;
-            max-width: 800px;
-            padding: 32px 20px;
-        }
+        main { width: 100%; max-width: 800px; padding: 32px 20px; }
 
-        .view-panel {
-            display: none;
-        }
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
 
-        .view-panel.active {
-            display: block;
-        }
-
-        /* Common Card Styles */
         .card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -97,12 +82,12 @@
         h2 { font-size: 22px; margin-bottom: 8px; }
         p.subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
 
-        /* Visitor Form Styles */
         .step-panel { display: none; }
         .step-panel.active { display: block; }
         .form-group { margin-bottom: 16px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
-        input[type="text"], input[type="tel"] {
+        
+        input[type="text"], input[type="tel"], input[type="password"] {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border);
@@ -198,8 +183,8 @@
     <header>
         <div class="logo">Company Onboarding Portal</div>
         <div class="view-toggle">
-            <button class="toggle-btn active" onclick="switchView('visitor')">Visitor View</button>
-            <button class="toggle-btn" onclick="switchView('admin')">Admin Panel</button>
+            <button class="toggle-btn active" id="tab-visitor" onclick="switchView('visitor')">Visitor View</button>
+            <button class="toggle-btn" id="tab-admin" onclick="switchView('admin')">Admin Panel</button>
         </div>
     </header>
 
@@ -288,29 +273,47 @@
         <!-- ================= ADMIN DASHBOARD VIEW ================= -->
         <div id="view-admin" class="view-panel">
             <div class="card">
-                <h2>Admin Approval Dashboard</h2>
-                <p class="subtitle">Approve or reject visitor access requests in real time.</p>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Visitor Name</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="visitor-table-body">
-                        <tr><td colspan="5" style="text-align: center;">No registration requests found.</td></tr>
-                    </tbody>
-                </table>
+                <!-- Admin Login Prompt -->
+                <div id="admin-login-sec">
+                    <h2>Admin Authentication</h2>
+                    <p class="subtitle">Enter the administrator password to access controls.</p>
+                    <div class="form-group">
+                        <label for="adminPass">Password</label>
+                        <input type="password" id="adminPass" placeholder="Enter password (default: admin123)">
+                    </div>
+                    <div id="admin-pass-err" class="alert-error">Incorrect password. Please try again.</div>
+                    <button class="btn" onclick="verifyAdminPassword()">Login to Admin Panel</button>
+                </div>
+
+                <!-- Admin Dashboard (Hidden until logged in) -->
+                <div id="admin-dashboard-sec" style="display: none;">
+                    <h2>Admin Approval Dashboard</h2>
+                    <p class="subtitle">Approve or reject visitor access requests in real time.</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Visitor Name</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitor-table-body">
+                            <tr><td colspan="5" style="text-align: center;">No registration requests found.</td></tr>
+                        </tbody>
+                    </table>
+                    <button class="btn" style="background:#64748b; margin-top:20px;" onclick="adminLogout()">Logout Admin</button>
+                </div>
             </div>
         </div>
     </main>
 
 <script>
-    let activeVisitorId = null;
+    const ADMIN_PASSWORD = "admin123";
+    let isAdminAuthenticated = false;
+    let activeVisitorId = localStorage.getItem('active_visitor_id') || null;
 
     // View Switching Logic
     function switchView(viewName) {
@@ -319,12 +322,38 @@
 
         if (viewName === 'visitor') {
             document.getElementById('view-visitor').classList.add('active');
-            document.querySelectorAll('.toggle-btn')[0].classList.add('active');
+            document.getElementById('tab-visitor').classList.add('active');
         } else {
             document.getElementById('view-admin').classList.add('active');
-            document.querySelectorAll('.toggle-btn')[1].classList.add('active');
-            renderAdminTable();
+            document.getElementById('tab-admin').classList.add('active');
+            if (isAdminAuthenticated) {
+                renderAdminTable();
+            }
         }
+    }
+
+    // Password Verification
+    function verifyAdminPassword() {
+        const input = document.getElementById('adminPass').value;
+        const err = document.getElementById('admin-pass-err');
+        
+        if (input === ADMIN_PASSWORD) {
+            isAdminAuthenticated = true;
+            err.style.display = 'none';
+            document.getElementById('admin-login-sec').style.display = 'none';
+            document.getElementById('admin-dashboard-sec').style.display = 'block';
+            renderAdminTable();
+        } else {
+            err.style.display = 'block';
+        }
+    }
+
+    function adminLogout() {
+        isAdminAuthenticated = false;
+        document.getElementById('adminPass').value = '';
+        document.getElementById('admin-login-sec').style.display = 'block';
+        document.getElementById('admin-dashboard-sec').style.display = 'none';
+        switchView('visitor');
     }
 
     // Step Switching Logic inside Visitor View
@@ -333,23 +362,30 @@
         document.getElementById(stepId).classList.add('active');
     }
 
-    // Storage Helper Functions
+    // Storage Helpers
     function getVisitors() {
-        return JSON.parse(localStorage.getItem('company_visitors') || '{}');
+        try {
+            return JSON.parse(localStorage.getItem('company_visitors') || '{}');
+        } catch(e) {
+            return {};
+        }
     }
 
     function saveVisitors(data) {
         localStorage.setItem('company_visitors', JSON.stringify(data));
-        // Trigger custom event so both views stay synced immediately
-        window.dispatchEvent(new Event('storage_updated'));
+        syncState();
     }
 
     // Step 1: Submit Registration
     document.getElementById('visitor-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        const name = document.getElementById('fullName').value;
-        const phone = document.getElementById('phoneNo').value;
+        const name = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phoneNo').value.trim();
+        
+        if(!name || !phone) return;
+
         activeVisitorId = 'vis_' + Date.now();
+        localStorage.setItem('active_visitor_id', activeVisitorId);
 
         const visitors = getVisitors();
         visitors[activeVisitorId] = {
@@ -388,12 +424,14 @@
             const visitors = getVisitors();
             const current = visitors[activeVisitorId];
             
-            document.getElementById('cert-name').innerText = current.name;
-            document.getElementById('cert-phone').innerText = current.phone;
+            document.getElementById('cert-name').innerText = current ? current.name : "Visitor";
+            document.getElementById('cert-phone').innerText = current ? current.phone : "";
             document.getElementById('cert-date').innerText = new Date().toLocaleString();
 
-            visitors[activeVisitorId].status = 'completed';
-            saveVisitors(visitors);
+            if (current) {
+                visitors[activeVisitorId].status = 'completed';
+                saveVisitors(visitors);
+            }
 
             showStep('step-certificate');
         } else {
@@ -413,6 +451,8 @@
     }
 
     function renderAdminTable() {
+        if (!isAdminAuthenticated) return;
+        
         const visitors = getVisitors();
         const tbody = document.getElementById('visitor-table-body');
         tbody.innerHTML = '';
@@ -443,27 +483,30 @@
         });
     }
 
-    // Sync views on storage events
-    window.addEventListener('storage_updated', syncState);
-    window.addEventListener('storage', syncState);
-
+    // Continuous Real-Time Synchronizer (Fixed for Single Tab & Multi-Tab local testing)
     function syncState() {
-        renderAdminTable();
+        if (isAdminAuthenticated && document.getElementById('view-admin').classList.contains('active')) {
+            renderAdminTable();
+        }
 
-        // If visitor is currently waiting, check if status changed
         if (activeVisitorId) {
             const visitors = getVisitors();
             const current = visitors[activeVisitorId];
             if (current) {
-                if (current.status === 'approved' && document.getElementById('step-pending').classList.contains('active')) {
+                const pendingStepActive = document.getElementById('step-pending').classList.contains('active');
+                if (current.status === 'approved' && pendingStepActive) {
                     showStep('step-video');
-                } else if (current.status === 'rejected') {
+                } else if (current.status === 'rejected' && pendingStepActive) {
                     document.getElementById('approval-status').innerText = "ACCESS REJECTED BY ADMIN";
                     document.getElementById('approval-status').style.color = "var(--error)";
                 }
             }
         }
     }
+
+    // Listen to native storage events across tabs & run continuous interval sync
+    window.addEventListener('storage', syncState);
+    setInterval(syncState, 1000);
 </script>
 
 </body>
