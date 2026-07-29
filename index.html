@@ -142,11 +142,10 @@
             display: block;
         }
 
-        /* Responsive Container for Embedded IFrames (YouTube, Google Drive, Loom, etc.) */
         .iframe-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            padding-bottom: 56.25%;
             height: 0;
             background: #000;
             border-radius: 8px;
@@ -283,9 +282,9 @@
                 <!-- STEP 3: Video -->
                 <div id="step-video" class="step-panel">
                     <h2>Safety Orientation Video</h2>
-                    <p class="subtitle">Watch the complete video to unlock the assessment test.</p>
+                    <p class="subtitle" id="videoSubtext">Watch the complete video to unlock the assessment test.</p>
                     
-                    <!-- HTML5 Native Video Container (for uploaded files or direct MP4 links) -->
+                    <!-- HTML5 Native Video Container -->
                     <div class="video-container" id="nativeVideoWrapper">
                         <video id="orientationVideo" controls playsinline controlsList="nodownload" preload="metadata">
                             <source id="videoSource" src="" type="video/mp4">
@@ -293,12 +292,13 @@
                         </video>
                     </div>
 
-                    <!-- Embed IFrame Container (for YouTube, OneDrive stream, Google Drive, Loom, etc.) -->
+                    <!-- Embed IFrame Container -->
                     <div class="iframe-container" id="iframeVideoWrapper">
                         <iframe id="videoIframe" src="" allowfullscreen></iframe>
                     </div>
 
-                    <button id="videoNextBtn" class="btn">Proceed to Assessment</button>
+                    <!-- Initially Disabled Button -->
+                    <button id="videoNextBtn" class="btn" disabled>Watch Video Completely to Unlock Assessment</button>
                 </div>
 
                 <!-- STEP 4: Quiz -->
@@ -368,14 +368,14 @@
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeBackgroundImage()">Reset Background</button>
                         </div>
                         
-                        <!-- Video File Upload Option (Max 10 MB limit) -->
+                        <!-- Video File Upload Option -->
                         <div class="form-group" style="margin-top: 12px;">
                             <label>Upload Video File (.mp4 - Max 10 MB)</label>
                             <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeVideoFile()">Reset Video File</button>
                         </div>
 
-                        <!-- Universal Video URL Input (Supports YouTube, OneDrive, Google Drive, Direct MP4 Links, etc.) -->
+                        <!-- Universal Video URL Input -->
                         <div class="form-group">
                             <label>Or Video Link (YouTube, OneDrive, Google Drive, MP4 URL)</label>
                             <input type="url" id="videoUrlInput" placeholder="Paste any video link here">
@@ -412,6 +412,7 @@
     let peerConnections = {}; 
     let visitorRecords = {};
     let activeConn = null; 
+    let iframeTimer = null;
 
     let currentVideoUrl = localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
@@ -478,6 +479,12 @@
     function showStep(stepId) {
         document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(stepId).classList.add('active');
+        
+        // Reset iframe timer if leaving video step
+        if (stepId !== 'step-video' && iframeTimer) {
+            clearTimeout(iframeTimer);
+            iframeTimer = null;
+        }
     }
 
     function updateBackgroundImage(e) {
@@ -576,38 +583,21 @@
         alert("Video reset to default.");
     }
 
-    // Universal URL parser to automatically format YouTube, OneDrive, Google Drive, or raw MP4 links
     function parseUniversalVideoUrl(url) {
         url = url.trim();
-
-        // 1. YouTube link support (Standard or Shortened)
         if (url.includes('youtube.com/watch?v=')) {
             const videoId = url.split('v=')[1]?.split('&')[0];
-            return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
         } else if (url.includes('youtu.be/')) {
             const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-            return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
         }
-
-        // 2. OneDrive / SharePoint link support
         if (url.includes('1drv.ms') || url.includes('sharepoint.com')) {
             url = url.replace('redir?', 'download?').replace(':u:/', ':v:/');
             if (!url.includes('download=1')) {
                 url += (url.includes('?') ? '&' : '?') + 'download=1';
             }
-            return url;
         }
-
-        // 3. Google Drive file link support
-        if (url.includes('drive.google.com')) {
-            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                return `https://www.google.com/recaptcha/api2/anchor...` // standard preview/embed format
-                return `https://drive.google.com/file/d/${match[1]}/preview`;
-            }
-        }
-
-        // Default: direct video file URL
         return url;
     }
 
@@ -625,21 +615,46 @@
         alert("Video link updated successfully!");
     }
 
+    function unlockVideoNextButton() {
+        const videoNextBtn = document.getElementById('videoNextBtn');
+        const videoSubtext = document.getElementById('videoSubtext');
+        videoNextBtn.disabled = false;
+        videoNextBtn.style.background = "var(--success)";
+        videoNextBtn.textContent = "Proceed to Assessment";
+        videoSubtext.textContent = "Video complete! You can now proceed to the assessment test.";
+    }
+
     function setVideoSource(url) {
         const nativeWrapper = document.getElementById('nativeVideoWrapper');
         const iframeWrapper = document.getElementById('iframeVideoWrapper');
         const player = document.getElementById('orientationVideo');
         const source = document.getElementById('videoSource');
         const iframe = document.getElementById('videoIframe');
+        const videoNextBtn = document.getElementById('videoNextBtn');
+        const videoSubtext = document.getElementById('videoSubtext');
 
-        // Check if it's an embedded platform link (YouTube, Google Drive preview, etc.)
+        // Reset button state whenever source changes
+        videoNextBtn.disabled = true;
+        videoNextBtn.style.background = "#cbd5e1";
+        videoNextBtn.textContent = "Watch Video Completely to Unlock Assessment";
+        videoSubtext.textContent = "Watch the complete video to unlock the assessment test.";
+
+        if (iframeTimer) {
+            clearTimeout(iframeTimer);
+            iframeTimer = null;
+        }
+
         if (url.includes('youtube.com/embed') || url.includes('youtu.be') || url.includes('drive.google.com/file/d/')) {
             nativeWrapper.style.display = 'none';
             iframeWrapper.style.display = 'block';
             player.pause();
             iframe.src = parseUniversalVideoUrl(url);
+
+            // For embedded links (like YouTube), unlock the button after 30 seconds as a reliable fallback since cross-origin video end events are restricted
+            iframeTimer = setTimeout(() => {
+                unlockVideoNextButton();
+            }, 30000);
         } else {
-            // It's a standard direct MP4 link, base64 file string, or OneDrive direct link
             iframeWrapper.style.display = 'none';
             nativeWrapper.style.display = 'block';
             iframe.src = '';
@@ -653,13 +668,15 @@
     const videoPlayer = document.getElementById('orientationVideo');
     const videoNextBtn = document.getElementById('videoNextBtn');
 
+    // Strictly unlocks only when the HTML5 video playback reaches the 'ended' event
     videoPlayer.addEventListener('ended', () => {
-        videoNextBtn.disabled = false;
-        videoNextBtn.style.background = "var(--success)";
+        unlockVideoNextButton();
     });
 
     videoNextBtn.addEventListener('click', () => {
-        showStep('step-quiz');
+        if (!videoNextBtn.disabled) {
+            showStep('step-quiz');
+        }
     });
 
     function broadcastConfig(config) {
