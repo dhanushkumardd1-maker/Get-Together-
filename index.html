@@ -338,9 +338,9 @@
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeBackgroundImage()">Reset Background</button>
                         </div>
                         
-                        <!-- Video File Upload Option (Max 100MB) -->
+                        <!-- Video File Upload Option -->
                         <div class="form-group" style="margin-top: 12px;">
-                            <label>Upload Video File (.mp4 - Max 100 MB)</label>
+                            <label>Upload Video File (.mp4 - Stored in Browser & Survives Refreshes)</label>
                             <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
                             <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeVideoFile()">Reset Video File</button>
                         </div>
@@ -382,52 +382,22 @@
     let visitorRecords = {};
     let activeConn = null; 
 
-    // Initialize IndexedDB for large files (up to 100MB+)
-    let db;
-    const dbRequest = indexedDB.open("VisitorPortalDB", 1);
-
-    dbRequest.onerror = function(event) {
-        console.error("IndexedDB error:", event.target.error);
-    };
-
-    dbRequest.onsuccess = function(event) {
-        db = event.target.result;
-        loadSavedVideo();
-    };
-
-    dbRequest.onupgradeneeded = function(event) {
-        db = event.target.result;
-        if (!db.objectStoreNames.contains("files")) {
-            db.createObjectStore("files");
-        }
-    };
+    // Retrieve saved video file or URL immediately upon loading script
+    let currentVideoUrl = localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
     window.addEventListener('DOMContentLoaded', () => {
         const savedBg = localStorage.getItem('saved_bg_image');
         if (savedBg) {
             document.body.style.backgroundImage = `url('${savedBg}')`;
         }
+
+        // Automatically set video source from storage on refresh
+        setVideoSource(currentVideoUrl);
+        const videoInput = document.getElementById('videoUrlInput');
+        if (videoInput && !localStorage.getItem('saved_video_file')) {
+            videoInput.value = currentVideoUrl;
+        }
     });
-
-    function loadSavedVideo() {
-        if (!db) return;
-        const transaction = db.transaction(["files"], "readonly");
-        const store = transaction.objectStore("files");
-        const request = store.get("saved_video_blob");
-
-        request.onsuccess = function(event) {
-            const blob = event.target.result;
-            if (blob) {
-                const videoUrl = URL.createObjectURL(blob);
-                setVideoSource(videoUrl);
-            } else {
-                const savedUrl = localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
-                setVideoSource(savedUrl);
-                const videoInput = document.getElementById('videoUrlInput');
-                if (videoInput) videoInput.value = savedUrl;
-            }
-        };
-    }
 
     function switchView(viewName) {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
@@ -528,7 +498,7 @@
         broadcastConfig({ bgImage: '' });
     }
 
-    // Handle direct video file upload (Max 100MB limit stored securely in IndexedDB)
+    // Handle direct video file upload and store into LocalStorage (survives page refreshes)
     function updateVideoFile(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -540,43 +510,41 @@
             return;
         }
 
-        const transaction = db.transaction(["files"], "readwrite");
-        const store = transaction.objectStore("files");
-        const request = store.put(file, "saved_video_blob");
-
-        request.onsuccess = function() {
-            localStorage.removeItem('saved_video_url');
-            const videoUrl = URL.createObjectURL(file);
-            setVideoSource(videoUrl);
-            alert("Video file uploaded and saved permanently until deleted!");
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const videoBase64 = event.target.result;
+            try {
+                localStorage.removeItem('saved_video_url');
+                localStorage.setItem('saved_video_file', videoBase64);
+                currentVideoUrl = videoBase64;
+                setVideoSource(videoBase64);
+                broadcastConfig({ videoUrl: videoBase64 });
+                alert("Video file saved to storage successfully! It will persist even if you refresh.");
+            } catch(err) {
+                alert("File size is too large for browser LocalStorage quota limits (typically ~5-10MB limit depending on browser). Try a smaller video clip or use a URL link.");
+            }
         };
-
-        request.onerror = function() {
-            alert("Failed to save video to local database.");
-        };
+        reader.readAsDataURL(file);
     }
 
     function removeVideoFile() {
-        const transaction = db.transaction(["files"], "readwrite");
-        const store = transaction.objectStore("files");
-        store.delete("saved_video_blob");
-
+        localStorage.removeItem('saved_video_file');
         localStorage.removeItem('saved_video_url');
         document.getElementById('videoFileInput').value = "";
         document.getElementById('videoUrlInput').value = "";
-        
+        currentVideoUrl = DEFAULT_VIDEO;
         setVideoSource(DEFAULT_VIDEO);
+        broadcastConfig({ videoUrl: DEFAULT_VIDEO });
         alert("Video reset to default.");
     }
 
     function updateVideoUrl() {
         const inputUrl = document.getElementById('videoUrlInput').value.trim() || DEFAULT_VIDEO;
-        const transaction = db.transaction(["files"], "readwrite");
-        const store = transaction.objectStore("files");
-        store.delete("saved_video_blob");
-
+        localStorage.removeItem('saved_video_file');
+        currentVideoUrl = inputUrl;
         localStorage.setItem('saved_video_url', inputUrl);
         setVideoSource(inputUrl);
+        broadcastConfig({ videoUrl: inputUrl });
         alert("Video URL updated successfully!");
     }
 
@@ -621,6 +589,14 @@
                     peerConnections[data.visitor.id] = conn;
                     visitorRecords[data.visitor.id] = data.visitor;
                     renderAdminTable();
+                    
+                    conn.send({
+                        type: 'config_update',
+                        config: { 
+                            bgImage: localStorage.getItem('saved_bg_image') || '',
+                            videoUrl: localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || currentVideoUrl 
+                        }
+                    });
                 } else if (data.type === 'completed') {
                     if (visitorRecords[data.visitorId]) {
                         visitorRecords[data.visitorId].status = 'completed';
@@ -680,6 +656,13 @@
                     } else if (data.status === 'rejected') {
                         document.getElementById('approval-status').innerText = "ACCESS REJECTED BY ADMIN";
                         document.getElementById('approval-status').style.color = "var(--error)";
+                    }
+                } else if (data.type === 'config_update') {
+                    if (data.config.bgImage !== undefined) {
+                        document.body.style.backgroundImage = data.config.bgImage ? `url('${data.config.bgImage}')` : 'none';
+                    }
+                    if (data.config.videoUrl) {
+                        setVideoSource(data.config.videoUrl);
                     }
                 }
             });
