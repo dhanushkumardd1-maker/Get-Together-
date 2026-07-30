@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Visitor Portal & Admin Control</title>
-    <!-- PeerJS with reliable public STUN/TURN server configuration for GitHub Pages -->
+    <title>MPlastics Toys & Engineering - Enterprise Visitor & HSE Safety Compliance Hub</title>
+    <!-- PeerJS for Real-Time P2P Security Desk Synchronization -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --bg: #f8fafc;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text: #0f172a;
-            --border: #e2e8f0;
-            --error: #dc2626;
-            --success: #16a34a;
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --secondary: #0f172a;
+            --bg: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --error: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --radius: 14px;
+            --shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.12), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
         body {
             background-color: var(--bg);
@@ -30,78 +34,90 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: background-image 0.3s ease;
+            transition: background-image 0.4s ease;
         }
 
         header {
             width: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
-            padding: 16px 24px;
+            padding: 16px 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .logo { font-size: 18px; font-weight: 700; color: var(--primary); }
+        .logo-container { display: flex; flex-direction: column; }
+        .logo { font-size: 19px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+        .sub-logo { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
 
         .view-toggle {
             display: flex;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 8px;
+            background: #e2e8f0;
+            padding: 5px;
+            border-radius: 10px;
         }
 
         .toggle-btn {
             border: none;
             background: transparent;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 6px;
+            padding: 9px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer;
             color: #64748b;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .toggle-btn.active {
             background: #fff;
             color: var(--primary);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         }
 
-        main { width: 100%; max-width: 850px; padding: 32px 20px; }
+        main { width: 100%; max-width: 940px; padding: 40px 20px; flex: 1; }
 
         .view-panel { display: none; }
         .view-panel.active { display: block; }
 
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            padding: 32px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 42px;
             border: 1px solid var(--border);
             backdrop-filter: blur(10px);
         }
 
-        h2 { font-size: 22px; margin-bottom: 8px; }
-        p.subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+        h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--secondary); letter-spacing: -0.5px; }
+        p.subtitle { font-size: 14px; color: #64748b; margin-bottom: 28px; line-height: 1.5; }
 
         .step-panel { display: none; }
         .step-panel.active { display: block; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
         
-        input[type="text"], input[type="tel"], input[type="password"], input[type="url"] {
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #334155; }
+        
+        input[type="text"], input[type="tel"], input[type="password"], input[type="url"], input[type="date"], select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
             font-size: 15px;
             outline: none;
             background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
         }
 
         .btn {
@@ -109,38 +125,39 @@
             background: var(--primary);
             color: #fff;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 10px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 12px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
         }
 
-        .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn:hover { background: var(--primary-dark); }
+        .btn:active { transform: scale(0.99); }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
 
         .status-box {
             text-align: center;
-            padding: 24px;
-            border-radius: 8px;
-            background: #eff6ff;
-            border: 1px dashed var(--primary);
-            margin-bottom: 16px;
+            padding: 32px;
+            border-radius: var(--radius);
+            background: #f0f9ff;
+            border: 2px dashed var(--primary);
+            margin-bottom: 24px;
         }
 
         .video-container {
             position: relative;
             width: 100%;
-            border-radius: 8px;
+            border-radius: var(--radius);
             overflow: hidden;
             background: #000;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
         }
 
-        video {
-            width: 100%;
-            display: block;
-        }
+        video { width: 100%; display: block; }
 
         .iframe-container {
             position: relative;
@@ -148,95 +165,220 @@
             padding-bottom: 56.25%;
             height: 0;
             background: #000;
-            border-radius: 8px;
+            border-radius: var(--radius);
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: none;
         }
 
         .iframe-container iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
+            top: 0; left: 0; width: 100%; height: 100%; border: none;
         }
 
-        .quiz-question { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-        .quiz-option { display: block; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
+        .quiz-question { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .quiz-option { display: flex; align-items: center; gap: 12px; margin-top: 10px; font-size: 14px; font-weight: 500; cursor: pointer; padding: 10px 14px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .quiz-option:hover { background: #f1f5f9; border-color: var(--primary); }
+        .quiz-option input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 
         .alert-error {
             background: #fef2f2;
             color: var(--error);
             border: 1px solid #fecaca;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 8px;
             font-size: 14px;
-            margin-top: 12px;
+            font-weight: 600;
+            margin-top: 16px;
             display: none;
         }
 
         .certificate {
             border: 8px double var(--primary);
-            padding: 30px;
+            padding: 40px;
             text-align: center;
             background: #fff;
-            border-radius: 4px;
+            border-radius: var(--radius);
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.02);
         }
 
-        .certificate h1 { font-size: 24px; color: var(--primary-dark); margin-bottom: 12px; }
-        .certificate .visitor-name { font-size: 24px; font-weight: bold; margin: 16px 0; text-decoration: underline; }
+        .certificate h1 { font-size: 26px; color: var(--primary-dark); margin-bottom: 12px; letter-spacing: 1px; }
+        .certificate .visitor-name { font-size: 28px; font-weight: 800; margin: 20px 0; text-decoration: underline; color: var(--secondary); }
 
-        .admin-section {
+        /* Premium Admin Navigation Cards Grid */
+        .admin-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .admin-nav-card {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #fff;
+            padding: 24px 16px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            line-height: 1.4;
+        }
+
+        .admin-nav-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+        }
+
+        .admin-nav-card.active-tab {
+            border-color: #fff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.4);
+        }
+
+        .admin-section-content {
+            display: none;
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: var(--radius);
+            margin-bottom: 28px;
         }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 16px; }
-        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
-        th { background: #f8fafc; font-weight: 600; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .admin-section-content.active-section {
+            display: block;
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 16px; border-radius: 10px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: left; background: #fff; }
+        th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { background: #f1f5f9; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-pending { background: #fef3c7; color: #d97706; }
         .badge-approved { background: #dcfce7; color: #16a34a; }
         .badge-rejected { background: #fee2e2; color: #dc2626; }
-        .badge-completed { background: #dbeafe; color: #2563eb; }
+        .badge-completed { background: #dbeafe; color: #0284c7; }
 
         .action-btn {
-            padding: 6px 12px;
+            padding: 8px 14px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
-            font-weight: 600;
-            margin-right: 4px;
+            font-weight: 700;
+            margin-right: 6px;
+            transition: opacity 0.2s;
         }
+        .action-btn:hover { opacity: 0.85; }
         .btn-approve { background: var(--success); color: #fff; }
         .btn-reject { background: var(--error); color: #fff; }
         
-        .code-box {
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 4px;
-            color: var(--primary);
-            background: #f1f5f9;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 12px 0;
+        /* Matched layout structure exactly like reference image */
+        .top-admin-dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            align-items: stretch;
+            margin-bottom: 24px;
         }
+        @media(max-width: 768px) {
+            .top-admin-dashboard-layout { grid-template-columns: 1fr; }
+        }
+
+        .code-box-wrapper {
+            background: #fff;
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            height: 100%;
+        }
+
+        .code-box {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: var(--primary);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .analytics-card-wrapper {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .monitoring-banner {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 10px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .metrics-grid-ref {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .metric-box-ref {
+            background: #fff;
+            padding: 14px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+        .metric-title-ref { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value-ref { font-size: 24px; font-weight: 800; color: var(--secondary); margin-top: 4px; }
+
+        /* Filter Bars */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.2fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        @media(max-width: 900px) {
+            .filter-grid { grid-template-columns: 1fr; }
+        }
+        .filter-grid input, .filter-grid select { width: 100%; padding: 10px 14px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">MPlastics Toys and Engineering Private Limited, Hosur </div>
+        <div class="logo-container">
+            <div class="logo">MPlastics Toys & Engineering Private Limited</div>
+            <div class="sub-logo">Hosur Plant • Global HSE Visitor & Safety Compliance Gateway</div>
+        </div>
         <div class="view-toggle">
-            <button class="toggle-btn active" id="tab-visitor" onclick="switchView('visitor')">Visitor View</button>
-            <button class="toggle-btn" id="tab-admin" onclick="switchView('admin')">Admin Panel</button>
+            <button class="toggle-btn active" id="tab-visitor" onclick="switchView('visitor')">Visitor Portal</button>
+            <button class="toggle-btn" id="tab-admin" onclick="switchView('admin')">Security Desk Control</button>
         </div>
     </header>
 
@@ -247,44 +389,55 @@
                 
                 <!-- STEP 1: Registration Form -->
                 <div id="step-register" class="step-panel active">
-                    <h2>General Safety Instruction</h2>
-                    <p class="subtitle">Connect to the admin desk code and enter your details.</p>
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label for="languageSelect" id="lbl-lang">Select Interface Language / மொழி / भाषा / భాష / ಭಾಷೆ</label>
+                        <select id="languageSelect" onchange="changeLanguage(this.value)">
+                            <option value="en">English</option>
+                            <option value="ta">தமிழ் (Tamil)</option>
+                            <option value="hi">हिन्दी (Hindi)</option>
+                            <option value="te">తెలుగు (Telugu)</option>
+                            <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                        </select>
+                    </div>
+
+                    <h2 id="txt-reg-title">General Safety & Security Induction</h2>
+                    <p class="subtitle" id="txt-reg-sub">Connect to the plant desk session code and verify your official credentials.</p>
                     <form id="visitor-form">
                         <div class="form-group">
-                            <label for="adminCodeInput">Admin Desk Code (4-Digits)</label>
-                            <input type="text" id="adminCodeInput" required placeholder="" maxlength="4">
+                            <label for="adminCodeInput" id="txt-label-code">Desk Session Code (4-Digits)</label>
+                            <input type="text" id="adminCodeInput" required placeholder="e.g. 4821" maxlength="4">
                         </div>
                         <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" required placeholder="">
+                            <label for="fullName" id="txt-label-name">Full Name (As per Government ID)</label>
+                            <input type="text" id="fullName" required placeholder="Enter your full legal name">
                         </div>
                         <div class="form-group">
-                            <label for="phoneNo">Phone Number</label>
-                            <input type="tel" id="phoneNo" required placeholder="">
+                            <label for="phoneNo" id="txt-label-phone">Mobile Phone Number</label>
+                            <input type="tel" id="phoneNo" required placeholder="Enter active mobile number">
                         </div>
-                        <div id="conn-error" class="alert-error">Failed to connect to Admin Desk. Ensure Admin Panel is OPEN on laptop with matching 4-digit code.</div>
-                        <button type="submit" class="btn" id="submitRegBtn">Submit for Approval</button>
+                        <div id="conn-error" class="alert-error">Failed to connect to Security Desk. Ensure the Security Admin console is active on the desk laptop with a matching 4-digit session code.</div>
+                        <button type="submit" class="btn" id="submitRegBtn">Submit for Security Approval</button>
                     </form>
                 </div>
 
                 <!-- STEP 2: Pending Screen -->
                 <div id="step-pending" class="step-panel">
-                    <h2>Waiting for Approval</h2>
-                    <p class="subtitle">Connected to Admin Desk. Awaiting authorization...</p>
+                    <h2 id="txt-pend-title">Waiting for Security Authorization</h2>
+                    <p class="subtitle" id="txt-pend-sub">Secure connection established with plant safety desk.</p>
                     <div class="status-box">
-                        <p>Status: <strong id="approval-status" style="color: #d97706;">PENDING ADMIN APPROVAL</strong></p>
-                        <p style="font-size: 13px; color: #64748b; margin-top: 8px;">
-                            Please wait. This screen automatically proceeds once approved on the security officer.
+                        <p style="font-size: 14px; font-weight: 700; color: #475569; margin-bottom: 8px;">LIVE CLEARANCE STATUS:</p>
+                        <p><strong id="approval-status" style="font-size: 22px; color: var(--warning);">PENDING ADMIN APPROVAL</strong></p>
+                        <p style="font-size: 13px; color: #64748b; margin-top: 14px; line-height: 1.5;" id="txt-pend-note">
+                            Please remain on this screen. Gate clearance updates automatically once verified by the plant security officer.
                         </p>
                     </div>
                 </div>
 
                 <!-- STEP 3: Video -->
                 <div id="step-video" class="step-panel">
-                    <h2>Safety Orientation Video</h2>
-                    <p class="subtitle" id="videoSubtext">Watch the complete video to unlock the assessment test.</p>
+                    <h2 id="txt-vid-title">Mandatory HSE Safety Orientation Video</h2>
+                    <p class="subtitle" id="videoSubtext">Watch the entire industrial safety compliance film to unlock your assessment test.</p>
                     
-                    <!-- HTML5 Native Video Container -->
                     <div class="video-container" id="nativeVideoWrapper">
                         <video id="orientationVideo" controls playsinline controlsList="nodownload" preload="metadata">
                             <source id="videoSource" src="" type="video/mp4">
@@ -292,46 +445,44 @@
                         </video>
                     </div>
 
-                    <!-- Embed IFrame Container -->
                     <div class="iframe-container" id="iframeVideoWrapper">
                         <iframe id="videoIframe" src="" allowfullscreen></iframe>
                     </div>
 
-                    <!-- Initially Disabled Button -->
                     <button id="videoNextBtn" class="btn" disabled>Watch Video Completely to Unlock Assessment</button>
                 </div>
 
                 <!-- STEP 4: Quiz -->
                 <div id="step-quiz" class="step-panel">
-                    <h2>Visitor Safety Assessment</h2>
-                    <p class="subtitle">A score of 100% is required to obtain your clearance certificate.</p>
+                    <h2 id="txt-quiz-title">HSE Safety & Compliance Assessment</h2>
+                    <p class="subtitle" id="txt-quiz-sub">A mandatory 100% compliance score is required to obtain your gate clearance pass.</p>
                     <form id="quiz-form">
                         <div class="quiz-question">
-                            <p><strong>1. Are visitor badges required at all times inside the premises?</strong></p>
-                            <label class="quiz-option"><input type="radio" name="q1" value="yes" required> Yes</label>
-                            <label class="quiz-option"><input type="radio" name="q1" value="no"> No</label>
+                            <p><strong id="txt-q1">1. Are visitor safety badges, closed footwear, and PPE mandatory inside the manufacturing shop floor?</strong></p>
+                            <label class="quiz-option"><input type="radio" name="q1" value="yes" required> <span id="txt-q1-opt1">Yes, mandatory across all operational zones</span></label>
+                            <label class="quiz-option"><input type="radio" name="q1" value="no"> <span id="txt-q1-opt2">No, optional for short visits</span></label>
                         </div>
                         <div class="quiz-question">
-                            <p><strong>2. In case of emergency, what should you do?</strong></p>
-                            <label class="quiz-option"><input type="radio" name="q2" value="a"> Work independently</label>
-                            <label class="quiz-option"><input type="radio" name="q2" value="b" required> Follow your assigned escort to the designated exit</label>
+                            <p><strong id="txt-q2">2. In case of a fire alarm or emergency evacuation siren, what protocol must be followed?</strong></p>
+                            <label class="quiz-option"><input type="radio" name="q2" value="a"> <span id="txt-q2-opt1">Continue working at your station</span></label>
+                            <label class="quiz-option"><input type="radio" name="q2" value="b" required> <span id="txt-q2-opt2">Immediately follow your assigned escort to the designated assembly point</span></label>
                         </div>
                         <div id="quiz-error" class="alert-error"></div>
-                        <button type="submit" class="btn">Submit Assessment</button>
+                        <button type="submit" class="btn" id="txt-quiz-submit">Submit Safety Assessment</button>
                     </form>
                 </div>
 
                 <!-- STEP 5: Certificate -->
                 <div id="step-certificate" class="step-panel">
                     <div class="certificate">
-                        <h1>ENTRY CLEARANCE CERTIFICATE</h1>
-                        <p>Granted to</p>
+                        <h1 id="txt-cert-title">INDUSTRIAL ENTRY CLEARANCE CERTIFICATE</h1>
+                        <p id="txt-cert-granted">Officially Granted To</p>
                         <div class="visitor-name" id="cert-name">---</div>
-                        <p>Passed Safety Assessment (100% Score)</p>
-                        <p style="margin-top: 16px; font-size: 13px; color: #64748b;">Phone: <span id="cert-phone"></span></p>
-                        <p style="margin-top: 4px; font-size: 13px; color: #64748b;">Applied On: <span id="cert-date"></span></p>
+                        <p id="txt-cert-passed">Passed Enterprise Safety Orientation & Assessment (100% Verified)</p>
+                        <p style="margin-top: 20px; font-size: 13px; font-weight: 600; color: #475569;">Mobile: <span id="cert-phone"></span></p>
+                        <p style="margin-top: 4px; font-size: 13px; font-weight: 600; color: #475569;">Issued Timestamp: <span id="cert-date"></span></p>
                     </div>
-                    <button class="btn" onclick="window.print()">Print / Download Certificate</button>
+                    <button class="btn" style="margin-top: 24px;" onclick="window.print()" id="txt-print-btn">Print / Download Official Pass</button>
                 </div>
 
             </div>
@@ -342,63 +493,160 @@
             <div class="card">
                 <!-- Admin Password Screen -->
                 <div id="admin-login-sec">
-                    <h2>Admin Authentication</h2>
-                    <p class="subtitle">Enter password to launch the admin login.</p>
+                    <h2>Enterprise Security Authentication</h2>
+                    <p class="subtitle">Enter security desk administrative password to access control console.</p>
                     <div class="form-group">
-                        <label for="adminPass">Password</label>
-                        <input type="password" id="adminPass" placeholder="Enter password">
+                        <label for="adminPass">Administrator Password</label>
+                        <input type="password" id="adminPass" placeholder="Enter password" onkeydown="if(event.key==='Enter') verifyAdminPassword()">
                     </div>
-                    <div id="admin-pass-err" class="alert-error">Incorrect password. Try again.</div>
-                    <button class="btn" onclick="verifyAdminPassword()">Login to Admin Panel</button>
+                    <div id="admin-pass-err" class="alert-error">Incorrect administrative password. Please retry.</div>
+                    <button class="btn" onclick="verifyAdminPassword()">Authorize Security Console</button>
                 </div>
 
                 <!-- Admin Real-Time Table & Settings -->
                 <div id="admin-dashboard-sec" style="display: none;">
-                    <h2>Admin Control Center</h2>
-                    <p class="subtitle">Ask visitors on mobile to type this 4-digit code in their registration form:</p>
                     
-                    <div class="code-box" id="desk-code-display">----</div>
+                    <!-- Top Matched Layout Structure matching the Reference Image -->
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 24px; font-weight: 800; color: var(--secondary); margin-bottom: 4px;">Plant Security Control Center</h2>
+                        <p style="font-size: 14px; color: #64748b;">Broadcast this 4-digit dynamic session code to visiting personnel for device registration:</p>
+                    </div>
 
-                    <!-- Customization Options -->
-                    <div class="admin-section">
-                        <h3>Portal Customization Settings</h3>
-                        <div class="form-group" style="margin-top: 12px;">
-                            <label>Background Image (Max 10 MB)</label>
-                            <input type="file" id="bgImgInput" accept="image/*" onchange="updateBackgroundImage(event)">
-                            <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeBackgroundImage()">Reset Background</button>
-                        </div>
-                        
-                        <!-- Video File Upload Option -->
-                        <div class="form-group" style="margin-top: 12px;">
-                            <label>Upload Video File (.mp4 - Max 10 MB)</label>
-                            <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
-                            <button class="btn" style="padding: 6px; font-size: 12px; background: #dc2626; margin-top: 6px;" onclick="removeVideoFile()">Reset Video File</button>
+                    <div class="top-admin-dashboard-layout">
+                        <div class="code-box-wrapper">
+                            <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Active Desk Session Code</span>
+                            <div class="code-box" id="desk-code-display">----</div>
                         </div>
 
-                        <!-- Universal Video URL Input -->
-                        <div class="form-group">
-                            <label>Or Video Link (YouTube, OneDrive, Google Drive, MP4 URL)</label>
-                            <input type="url" id="videoUrlInput" placeholder="Paste any video link here">
-                            <button class="btn" style="padding: 8px; font-size: 13px;" onclick="updateVideoUrl()">Update Video Link</button>
+                        <div class="analytics-card-wrapper">
+                            <div class="monitoring-banner">Monitoring Dashboard</div>
+                            <div class="metrics-grid-ref">
+                                <div class="metric-box-ref">
+                                    <div class="metric-title-ref">Total Logs</div>
+                                    <div class="metric-value-ref" id="stat-total">0</div>
+                                </div>
+                                <div class="metric-box-ref">
+                                    <div class="metric-title-ref">Pending Review</div>
+                                    <div class="metric-value-ref" id="stat-pending" style="color: var(--warning);">0</div>
+                                </div>
+                                <div class="metric-box-ref">
+                                    <div class="metric-title-ref">Cleared Active</div>
+                                    <div class="metric-value-ref" id="stat-cleared" style="color: var(--success);">0</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <h3>Live Visitor Approvals</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date & Time</th>
-                                <th>Visitor Name</th>
-                                <th>Phone</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="visitor-table-body">
-                            <tr><td colspan="5" style="text-align: center;">Waiting for mobile visitors to connect...</td></tr>
-                        </tbody>
-                    </table>
-                    <button class="btn" style="background:#64748b; margin-top:20px;" onclick="adminLogout()">Logout Admin</button>
+                    <!-- Premium Admin Navigation Cards Grid -->
+                    <div class="admin-nav-grid">
+                        <div class="admin-nav-card active-tab" id="nav-card-approval" onclick="switchAdminSection('approval')">Live Visitor Approvals</div>
+                        <div class="admin-nav-card" id="nav-card-reports" onclick="switchAdminSection('reports')">Visitor Reports & Logbook</div>
+                        <div class="admin-nav-card" id="nav-card-config" onclick="switchAdminSection('config')">Enterprise Configuration</div>
+                        <div class="admin-nav-card" id="nav-card-system" onclick="switchAdminSection('system')">System Maintenance & Diagnostics</div>
+                    </div>
+
+                    <!-- SECTION 1: Live Visitor Approvals -->
+                    <div id="admin-sec-approval" class="admin-section-content active-section">
+                        <h3 style="font-size: 18px; margin-bottom: 8px; color: var(--secondary);">Pending Visitor Authorization Requests</h3>
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Approve or reject incoming visitors seeking entry clearance.</p>
+                        
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Visitor Name</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Action Controls</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approval-table-body">
+                                    <tr><td colspan="5" style="text-align: center; color: #64748b;">No pending requests. Waiting for check-ins...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: Visitor Reports & Logbook -->
+                    <div id="admin-sec-reports" class="admin-section-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                            <h3 style="font-size: 18px; color: var(--secondary);">Permanent Visitor Logbook & Reports</h3>
+                            <button class="btn" style="width: auto; padding: 10px 20px; font-size: 14px; background: var(--success);" onclick="exportToExcel()">📥 Export Permanent Excel (CSV)</button>
+                        </div>
+
+                        <!-- Multi-Category Filter Bar including Calendar Date Filter -->
+                        <div class="filter-grid">
+                            <input type="text" id="searchInput" placeholder="Search visitor by name or phone..." oninput="renderAdminTables()">
+                            <select id="statusFilter" onchange="renderAdminTables()">
+                                <option value="all">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="completed">Completed Pass</option>
+                            </select>
+                            <select id="langFilter" onchange="renderAdminTables()">
+                                <option value="all">All Languages</option>
+                                <option value="en">English (EN)</option>
+                                <option value="ta">Tamil (TA)</option>
+                                <option value="hi">Hindi (HI)</option>
+                                <option value="te">Telugu (TE)</option>
+                                <option value="kn">Kannada (KN)</option>
+                            </select>
+                            <input type="date" id="calendarFilter" onchange="renderAdminTables()" title="Filter by Visit Date">
+                        </div>
+                        <div style="margin-bottom: 16px; text-align: right;">
+                            <button class="action-btn btn-reject" style="padding: 6px 12px; font-size: 11px;" onclick="resetFilters()">Reset Filters</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Visitor Name</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Language</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body">
+                                    <tr><td colspan="5" style="text-align: center; color: #64748b;">No logs available.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: Enterprise Configuration -->
+                    <div id="admin-sec-config" class="admin-section-content">
+                        <h3 style="font-size: 18px; margin-bottom: 16px; color: var(--secondary);">Enterprise Portal Customization Settings</h3>
+                        <div class="form-group" style="margin-top: 12px;">
+                            <label>Background Image (Max 10 MB)</label>
+                            <input type="file" id="bgImgInput" accept="image/*" onchange="updateBackgroundImage(event)">
+                            <button class="action-btn btn-reject" style="margin-top: 8px;" onclick="removeBackgroundImage()">Reset Background</button>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label>Upload Orientation Video (.mp4 - Max 10 MB)</label>
+                            <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
+                            <button class="action-btn btn-reject" style="margin-top: 8px;" onclick="removeVideoFile()">Reset Video File</button>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label>Universal Video Stream Link (YouTube, OneDrive, Google Drive, MP4 URL)</label>
+                            <input type="url" id="videoUrlInput" placeholder="Paste direct stream link here">
+                            <button class="btn" style="padding: 10px; font-size: 13px; margin-top: 8px;" onclick="updateVideoUrl()">Update Video Link</button>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: System Maintenance & Diagnostics -->
+                    <div id="admin-sec-system" class="admin-section-content">
+                        <h3 style="font-size: 18px; margin-bottom: 16px; color: var(--secondary);">System Maintenance & Diagnostics</h3>
+                        <p style="font-size: 14px; color: #64748b; margin-bottom: 16px; line-height: 1.5;">Manage network host connections, peer nodes, and clear persistent records if necessary.</p>
+                        <button class="btn" style="background: var(--error); width: auto; padding: 10px 20px; font-size: 14px;" onclick="clearAllRecords()">Clear All Persistent Records</button>
+                    </div>
+                    
+                    <button class="btn" style="background:#475569; margin-top:10px;" onclick="adminLogout()">Lock Security Console</button>
                 </div>
             </div>
         </div>
@@ -410,9 +658,194 @@
     let isAdminAuthenticated = false;
     let peer = null;
     let peerConnections = {}; 
+    
     let visitorRecords = {};
+    try {
+        visitorRecords = JSON.parse(localStorage.getItem('saved_visitor_records') || '{}');
+    } catch(e) {
+        visitorRecords = {};
+    }
+
     let activeConn = null; 
     let iframeTimer = null;
+    let currentLang = 'en';
+
+    const translations = {
+        en: {
+            regTitle: "General Safety & Security Induction",
+            regSub: "Connect to the plant desk session code and verify your official credentials.",
+            labelCode: "Desk Session Code (4-Digits)",
+            labelName: "Full Name (As per Government ID)",
+            labelPhone: "Mobile Phone Number",
+            submitReg: "Submit for Security Approval",
+            pendTitle: "Waiting for Security Authorization",
+            pendSub: "Secure connection established with plant safety desk.",
+            pendNote: "Please remain on this screen. Gate clearance updates automatically once verified by the plant security officer.",
+            vidTitle: "Mandatory HSE Safety Orientation Video",
+            vidSub: "Watch the entire industrial safety compliance film to unlock your assessment test.",
+            vidBtnLock: "Watch Video Completely to Unlock Assessment",
+            vidBtnUnlock: "Proceed to Assessment",
+            quizTitle: "HSE Safety & Compliance Assessment",
+            quizSub: "A mandatory 100% compliance score is required to obtain your gate clearance pass.",
+            q1: "1. Are visitor safety badges, closed footwear, and PPE mandatory inside the manufacturing shop floor?",
+            q1Opt1: "Yes, mandatory across all operational zones",
+            q1Opt2: "No, optional for short visits",
+            q2: "2. In case of a fire alarm or emergency evacuation siren, what protocol must be followed?",
+            q2Opt1: "Continue working at your station",
+            q2Opt2: "Immediately follow your assigned escort to the designated assembly point",
+            quizSubmit: "Submit Safety Assessment",
+            certTitle: "INDUSTRIAL ENTRY CLEARANCE CERTIFICATE",
+            certGranted: "Officially Granted To",
+            certPassed: "Passed Enterprise Safety Orientation & Assessment (100% Verified)",
+            printBtn: "Print / Download Official Pass"
+        },
+        ta: {
+            regTitle: "பொதுவான பாதுகாப்பு மற்றும் பாதுகாப்பு அறிமுகம்",
+            regSub: "ஆலை மேஜை அமர்வு குறியீட்டுடன் இணைத்து உங்கள் அதிகாரப்பூர்வ சான்றுகளைச் சரிபார்க்கவும்.",
+            labelCode: "மேஜை அமர்வு குறியீடு (4 இலக்கங்கள்)",
+            labelName: "முழு பெயர் (அரசாங்க அடையாள ஆவணத்தின்படி)",
+            labelPhone: "மொபைல் தொலைபேசி எண்",
+            submitReg: "பாதுகாப்பு ஒப்புதலுக்காக சமர்ப்பிக்கவும்",
+            pendTitle: "பாதுகாப்பு அங்கீகாரத்திற்காக காத்திருக்கிறது",
+            pendSub: "ஆலை பாதுகாப்பு மேஜையுடன் பாதுகாப்பான இணைப்பு நிறுவப்பட்டது.",
+            pendNote: "தயவுசெய்து இந்தத் திரையில் இருக்கவும். ஆலை பாதுகாப்பு அதிகாரி சரிபார்த்தவுடன் கேட் அனுமதி நிலை தானாகவே புதுப்பிக்கப்படும்.",
+            vidTitle: "கட்டாய HSE பாதுகாப்பு நோக்குநிலை காணொளி",
+            vidSub: "மதிப்பீட்டுத் தேர்வைத் திறக்க முழு தொழில்துறை பாதுகாப்பு இணக்கக் காணொளியையும் பார்க்கவும்.",
+            vidBtnLock: "மதிப்பீட்டைத் திறக்க காணொளியை முழுமையாகப் பார்க்கவும்",
+            vidBtnUnlock: "மதிப்பீட்டிற்குச் செல்லவும்",
+            quizTitle: "HSE பாதுகாப்பு மற்றும் இணக்க மதிப்பீடு",
+            quizSub: "உங்கள் கேட் அனுமதிப் சீட்டைப் பெற கட்டாயமான 100% இணக்க மதிப்பெண் தேவை.",
+            q1: "1. உற்பத்தி தளத்திற்குள் பார்வையாளர் பாதுகாப்பு பேட்ஜ்கள், மூடப்பட்ட காலணிகள் மற்றும் PPE கட்டாயமா?",
+            q1Opt1: "ஆம், அனைத்து இயக்க மண்டலங்களிலும் கட்டாயம்",
+            q1Opt2: "இல்லை, குறுகிய வருகைகளுக்கு விருப்பமானது",
+            q2: "2. தீ எச்சரிக்கை அல்லது அவசரகால வெளியேற்றும் சைரன் ஏற்பட்டால், என்ன நெறிமுறையைப் பின்பற்ற வேண்டும்?",
+            q2Opt1: "உங்கள் நிலையத்தில் தொடர்ந்து வேலை செய்யுங்கள்",
+            q2Opt2: "உங்களுக்கு ஒதுக்கப்பட்ட பாதுகாப்புடன் நியமிக்கப்பட்ட கூட்டத்திற்குரிய இடத்திற்கு உடனடியாக செல்லவும்",
+            quizSubmit: "பாதுகாப்பு மதிப்பீட்டை சமர்ப்பிக்கவும்",
+            certTitle: "தொழில்துறை நுழைவு அனுமதிச் சான்றிதழ்",
+            certGranted: "அதிகாரப்பூர்வமாக வழங்கப்பட்டவர்",
+            certPassed: "நிறுவன பாதுகாப்பு நோக்குநிலை மற்றும் மதிப்பீடு தேர்ச்சி (100% சரிபார்க்கப்பட்டது)",
+            printBtn: "அதிகாரப்பூர்வ பாஸை அச்சிடுக / பதிவிறக்கவும்"
+        },
+        hi: {
+            regTitle: "सामान्य सुरक्षा और सुरक्षा इंडक्शन",
+            regSub: "प्लांट डेस्क सत्र कोड से कनेक्ट करें और अपने आधिकारिक विवरण सत्यापित करें।",
+            labelCode: "डेस्क सत्र कोड (4-अंक)",
+            labelName: "पूरा नाम (सरकारी आईडी के अनुसार)",
+            labelPhone: "मोबाइल फोन नंबर",
+            submitReg: "सुरक्षा अनुमोदन के लिए सबमिट करें",
+            pendTitle: "सुरक्षा प्राधिकरण की प्रतीक्षा है",
+            pendSub: "प्लांट सुरक्षा डेस्क के साथ सुरक्षित कनेक्शन स्थापित किया गया।",
+            pendNote: "कृपया इस स्क्रीन पर रहें। प्लांट सुरक्षा अधिकारी द्वारा सत्यापित होने के बाद गेट क्लीयरेंस स्वतः अपडेट हो जाता है।",
+            vidTitle: "अनिवार्य HSE सुरक्षा ओरिएंटेशन वीडियो",
+            vidSub: "अपना मूल्यांकन परीक्षण अनलॉक करने के लिए संपूर्ण औद्योगिक सुरक्षा अनुपालन फिल्म देखें।",
+            vidBtnLock: "मूल्यांकन अनलॉक करने के लिए पूरा वीडियो देखें",
+            vidBtnUnlock: "मूल्यांकन के लिए आगे बढ़ें",
+            quizTitle: "HSE सुरक्षा और अनुपालन मूल्यांकन",
+            quizSub: "अपना गेट क्लीयरेंस पास प्राप्त करने के लिए 100% अनुपालन स्कोर अनिवार्य है।",
+            q1: "1. क्या विनिर्माण शॉप फ्लोर के अंदर विज़िटर सुरक्षा बैज, बंद जूते और पीपीई अनिवार्य हैं?",
+            q1Opt1: "हाँ, सभी परिचालन क्षेत्रों में अनिवार्य",
+            q1Opt2: "नहीं, संक्षिप्त यात्राओं के लिए वैकल्पिक",
+            q2: "2. आग के अलार्म या आपातकालीन निकासी सायरन की स्थिति में, किस प्रोटोकॉल का पालन किया जाना चाहिए?",
+            q2Opt1: "अपने स्टेशन पर काम जारी रखें",
+            q2Opt2: "तुरंत अपने निर्दिष्ट एस्कॉर्ट का पालन करें और निर्धारित असेंबली पॉइंट पर जाएं",
+            quizSubmit: "सुरक्षा मूल्यांकन जमा करें",
+            certTitle: "औद्योगिक प्रवेश निकासी प्रमाण पत्र",
+            certGranted: "आधिकारिक तौर पर प्रदान किया गया",
+            certPassed: "एंटरप्राइज़ सुरक्षा ओरिएंटेशन और मूल्यांकन उत्तीर्ण (100% सत्यापित)",
+            printBtn: "आधिकारिक पास प्रिंट / डाउनलोड करें"
+        },
+        te: {
+            regTitle: "సాధారణ భద్రత మరియు సెక్యూరిటీ ఇండక్షన్",
+            regSub: "ప్లాంట్ డెస్క్ సెషన్ కోడ్‌కి కనెక్ట్ చేసి మీ అధికారిక ఆధారాలను ధృవీకరించండి.",
+            labelCode: "డెస్క్ సెషన్ కోడ్ (4-అంకెలు)",
+            labelName: "పూర్తి పేరు (ప్రభుత్వ ఐడి ప్రకారం)",
+            labelPhone: "మొబైల్ ఫోన్ నంబర్",
+            submitReg: "సెక్యూరిటీ ఆమోదం కోసం సమర్పించండి",
+            pendTitle: "సెక్యూరిటీ అనుమతి కోసం వేచి ఉంది",
+            pendSub: "ప్లాంట్ సేఫ్టీ డెస్క్‌తో సురక్షిత కనెక్షన్ ఏర్పాటు చేయబడింది.",
+            pendNote: "దయచేసి ఈ స్క్రీన్‌పై ఉండండి. ప్లాంట్ సెక్యూరిటీ ఆఫీసర్ ధృవీకరించిన తర్వాత గేట్ క్లియరెన్స్ స్వయంచాలకంగా అప్‌డేట్ అవుతుంది.",
+            vidTitle: "తప్పనిసరి HSE భద్రతా ఓరియంటేషన్ వీడియో",
+            vidSub: "మీ అసెస్‌మెంట్ టెస్ట్‌ను అన్‌లాక్ చేయడానికి మొత్తం పారిశ్రామిక భద్రతా సమ్మతి ఫిల్మ్‌ని చూడండి.",
+            vidBtnLock: "అసెస్‌మెంట్‌ను అన్‌లాక్ చేయడానికి వీడియోను పూర్తిగా చూడండి",
+            vidBtnUnlock: "అసెస్‌మెంట్‌కి వెళ్లండి",
+            quizTitle: "HSE భద్రత & సమ్మతి అసెస్‌మెంట్",
+            quizSub: "మీ గేట్ క్లియరెన్స్ పాస్‌ను పొందడానికి 100% సమ్మతి స్కోర్ తప్పనిసరి.",
+            q1: "1. తయారీ షాప్ ఫ్లోర్ లోపల విజిటర్ సేఫ్టీ బ్యాడ్జ్‌లు, మూసివున్న బూట్లు మరియు PPE తప్పనిసరా?",
+            q1Opt1: "అవును, అన్ని ఆపరేషనల్ జోన్లలో తప్పనిసరి",
+            q1Opt2: "కాదు, చిన్న సందర్శనలకు ఐచ్ఛికం",
+            q2: "2. అగ్ని ప్రమాద అలారం లేదా అత్యవసర ఖాళీ సైరన్ సంభవించినప్పుడు, ఏ ప్రోటోకాల్ పాటించాలి?",
+            q2Opt1: "మీ స్టేషన్‌లో పని చేయడం కొనసాగించండి",
+            q2Opt2: "వెంటనే మీ కేటాయించిన ఎస్కార్ట్‌తో నిర్దేశిత అసెంబ్లీ పాయింట్‌కి వెళ్లండి",
+            quizSubmit: "భద్రతా అసెస్‌మెంట్‌ను సమర్పించండి",
+            certTitle: "పారిశ్రామిక ప్రవేశ క్లియరెన్స్ సర్టిఫికేట్",
+            certGranted: "అధికారికంగా అందించబడిన వారు",
+            certPassed: "ఎంటర్‌ప్రైజ్ సేఫ్టీ ఓరియంటేషన్ & అసెస్‌మెంట్ ఉత్తీర్ణత (100% ధృవీకరించబడింది)",
+            printBtn: "అధికారిక పాస్‌ను ప్రింట్ / డౌన్‌లోడ్ చేయండి"
+        },
+        kn: {
+            regTitle: "ಸಾಮಾನ್ಯ ಸುರಕ್ಷತೆ ಮತ್ತು ಭದ್ರತಾ ಇಂಡಕ್ಷನ್",
+            regSub: "ಪ್ಲಾಂಟ್ ಡೆಸ್ಕ್ ಸೆಶನ್ ಕೋಡ್‌ಗೆ ಸಂಪರ್ಕಿಸಿ ಮತ್ತು ನಿಮ್ಮ ಅಧಿಕೃತ ఆధారಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.",
+            labelCode: "ಡೆಸ್ಕ್ ಸೆಶನ್ ಕೋಡ್ (4-ಅಂಕಿಗಳು)",
+            labelName: "ಪೂರ್ಣ ಹೆಸರು (ಸರ್ಕಾರಿ ಐಡಿ ಪ್ರಕಾರ)",
+            labelPhone: "ಮೊಬೈಲ್ ಫೋನ್ ಸಂಖ್ಯೆ",
+            submitReg: "ಭದ್ರತಾ ಅನುಮೋದನೆಗಾಗಿ ಸಲ್ಲಿಸಿ",
+            pendTitle: "ಭದ್ರತಾ ಅಧಿಕಾರಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ",
+            pendSub: "ಪ್ಲಾಂಟ್ ಸುರಕ್ಷತಾ ಡೆಸ್ಕ್‌ನೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಸಂಪರ್ಕವನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿದೆ.",
+            pendNote: "ದಯವಿಟ್ಟು ಈ ಪರದೆಯ ಮೇಲೆ ಇರಿ. ಪ್ಲಾಂಟ್ ಭದ್ರತಾ ಅಧಿಕಾರಿಯಿಂದ ಪರಿಶೀಲಿಸಿದ ನಂತರ ಗೇಟ್ ಕ್ಲಿಯರೆನ್ಸ್ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನವೀಕರಿಸಲ್ಪಡುತ್ತದೆ.",
+            vidTitle: "ಕಡ್ಡಾಯ HSE ಸುರಕ್ಷತಾ ದೃಷ್ಟಿಕೋನ ವೀಡಿಯೊ",
+            vidSub: "ನಿಮ್ಮ ಮೌಲ್ಯಮಾಪನ ಪರೀಕ್ಷೆಯನ್ನು ಅನ್ಲಾಕ್ ಮಾಡಲು ಸಂಪೂರ್ಣ ಕೈಗಾರಿಕಾ ಸುರಕ್ಷತಾ ಅನುಸರಣೆ ವೀಡಿಯೊವನ್ನು ವೀಕ್ಷಿಸಿ.",
+            vidBtnLock: "ಮೌಲ್ಯಮಾಪನ ಅನ್ಲಾಕ್ ಮಾಡಲು ವೀಡಿಯೊವನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ವೀಕ್ಷಿಸಿ",
+            vidBtnUnlock: "ಮೌಲ್ಯಮಾಪನಕ್ಕೆ ಮುಂದುವರಿಯಿರಿ",
+            quizTitle: "HSE ಸುರಕ್ಷತೆ ಮತ್ತು ಅನುಸರಣೆ ಮೌಲ್ಯಮಾಪನ",
+            quizSub: "ನಿಮ್ಮ ಗೇಟ್ ಕ್ಲಿಯರೆನ್ಸ್ ಪಾಸ್ ಪಡೆಯಲು 100% ಅನುಸರಣೆ ಸ್ಕೋರ್ ಕಡ್ಡಾಯವಾಗಿದೆ.",
+            q1: "1. ಉತ್ಪಾದನಾ ಅಂಗಡಿಯೊಳಗೆ ಸಂದರ್ಶಕ ಸುರಕ್ಷತಾ ಬ್ಯಾಡ್ಜ್‌ಗಳು, ಮುಚ್ಚಿದ ಪಾದರಕ್ಷೆಗಳು ಮತ್ತು PPE ಕಡ್ಡಾಯವೇ?",
+            q1Opt1: "ಹೌದು, ಎಲ್ಲಾ ಕಾರ್ಯಚರಣೆಯ ವಲಯಗಳಲ್ಲಿ ಕಡ್ಡಾಯ",
+            q1Opt2: "ಇಲ್ಲ, ಸಂಕ್ಷಿಪ್ತ ಭೇಟಿಗಳಿಗೆ ಐಚ್ಛಿಕ",
+            q2: "2. ಬೆಂಕಿ ಅಲಾರಮ್ ಅಥವಾ ತುರ್ತು ಸ್ಥಳಾಂತರಿಸುವ ಸೈರನ್ ಸಂದರ್ಭದಲ್ಲಿ, ಯಾವ ಪ್ರೋಟೋಕಾಲ್ ಅನ್ನು ಅನುಸರಿಸಬೇಕು?",
+            q2Opt1: "ನಿಮ್ಮ ಸ್ಟೇಷನ್‌ನಲ್ಲಿ ಕೆಲಸ ಮುಂದುವರಿಸಿ",
+            q2Opt2: "ತಕ್ಷಣವೇ ನಿಮ್ಮ ನಿಯೋಜಿತ ಸಹಚರರನ್ನು ಅನುಸರಿಸಿ ಗೊತ್ತುಪಡಿಸಿದ ಅಸೆಂಬ್ಲಿ ಸ್ಥಳಕ್ಕೆ ಹೋಗಿ",
+            quizSubmit: "ಭದ್ರತಾ ಮೌಲ್ಯಮಾಪನ ಸಲ್ಲಿಸಿ",
+            certTitle: "ಕೈಗಾರಿಕಾ ಪ್ರವೇಶ ಕ್ಲಿಯರೆನ್ಸ್ ಪ್ರಮಾಣಪತ್ರ",
+            certGranted: "ಅಧಿಕೃತವಾಗಿ ನೀಡಲಾಗಿದೆ",
+            certPassed: "ಎಂಟರ್‌ಪ್ರೈಜ್ ಸುರಕ್ಷತಾ ದೃಷ್ಟಿಕೋನ ಮತ್ತು ಮೌಲ್ಯಮಾಪನ ಪಾಸ್ (100% ಪರಿಶೀಲಿಸಲಾಗಿದೆ)",
+            printBtn: "ಪ್ರಮಾಣಪತ್ರ ಮುದ್ರಿಸಿ / ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ"
+        }
+    };
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang] || translations['en'];
+        
+        document.getElementById('txt-reg-title').innerText = t.regTitle;
+        document.getElementById('txt-reg-sub').innerText = t.regSub;
+        document.getElementById('txt-label-code').innerText = t.labelCode;
+        document.getElementById('txt-label-name').innerText = t.labelName;
+        document.getElementById('txt-label-phone').innerText = t.labelPhone;
+        document.getElementById('submitRegBtn').innerText = t.submitReg;
+
+        document.getElementById('txt-pend-title').innerText = t.pendTitle;
+        document.getElementById('txt-pend-sub').innerText = t.pendSub;
+        document.getElementById('txt-pend-note').innerText = t.pendNote;
+
+        document.getElementById('txt-vid-title').innerText = t.vidTitle;
+        document.getElementById('videoSubtext').innerText = t.vidSub;
+
+        document.getElementById('txt-quiz-title').innerText = t.quizTitle;
+        document.getElementById('txt-quiz-sub').innerText = t.quizSub;
+        document.getElementById('txt-q1').innerText = t.q1;
+        document.getElementById('txt-q1-opt1').innerText = t.q1Opt1;
+        document.getElementById('txt-q1-opt2').innerText = t.q1Opt2;
+        document.getElementById('txt-q2').innerText = t.q2;
+        document.getElementById('txt-q2-opt1').innerText = t.q2Opt1;
+        document.getElementById('txt-q2-opt2').innerText = t.q2Opt2;
+        document.getElementById('txt-quiz-submit').innerText = t.quizSubmit;
+
+        document.getElementById('txt-cert-title').innerText = t.certTitle;
+        document.getElementById('txt-cert-granted').innerText = t.certGranted;
+        document.getElementById('txt-cert-passed').innerText = t.certPassed;
+        document.getElementById('txt-print-btn').innerText = t.printBtn;
+    }
 
     let currentVideoUrl = localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
 
@@ -437,6 +870,7 @@
         if (videoInput && !localStorage.getItem('saved_video_file')) {
             videoInput.value = localStorage.getItem('saved_video_url') || '';
         }
+        renderAdminTables();
     });
 
     function switchView(viewName) {
@@ -449,7 +883,21 @@
         } else {
             document.getElementById('view-admin').classList.add('active');
             document.getElementById('tab-admin').classList.add('active');
+            if (isAdminAuthenticated) {
+                renderAdminTables();
+            }
         }
+    }
+
+    function switchAdminSection(sectionKey) {
+        document.querySelectorAll('.admin-nav-card').forEach(c => c.classList.remove('active-tab'));
+        document.querySelectorAll('.admin-section-content').forEach(s => s.classList.remove('active-section'));
+
+        const cardElem = document.getElementById('nav-card-' + sectionKey);
+        const secElem = document.getElementById('admin-sec-' + sectionKey);
+
+        if(cardElem) cardElem.classList.add('active-tab');
+        if(secElem) secElem.classList.add('active-section');
     }
 
     function verifyAdminPassword() {
@@ -462,6 +910,7 @@
             document.getElementById('admin-login-sec').style.display = 'none';
             document.getElementById('admin-dashboard-sec').style.display = 'block';
             initAdminPeerHost();
+            renderAdminTables();
         } else {
             err.style.display = 'block';
         }
@@ -469,7 +918,9 @@
 
     function adminLogout() {
         isAdminAuthenticated = false;
-        if(peer) peer.destroy();
+        if(peer) {
+            try { peer.destroy(); } catch(e) {}
+        }
         document.getElementById('adminPass').value = '';
         document.getElementById('admin-login-sec').style.display = 'block';
         document.getElementById('admin-dashboard-sec').style.display = 'none';
@@ -480,7 +931,6 @@
         document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(stepId).classList.add('active');
         
-        // Reset iframe timer if leaving video step
         if (stepId !== 'step-video' && iframeTimer) {
             clearTimeout(iframeTimer);
             iframeTimer = null;
@@ -564,7 +1014,7 @@
                 currentVideoUrl = videoBase64;
                 setVideoSource(videoBase64);
                 broadcastConfig({ videoUrl: videoBase64 });
-                alert("Video file successfully saved to storage!");
+                alert("Video file successfully saved to persistent enterprise storage!");
             } catch(err) {
                 alert("Storage error. Browser storage limit reached.");
             }
@@ -612,16 +1062,21 @@
         localStorage.setItem('saved_video_url', inputUrl);
         setVideoSource(inputUrl);
         broadcastConfig({ videoUrl: inputUrl });
-        alert("Video link updated successfully!");
+        alert("Video stream link updated successfully!");
     }
 
     function unlockVideoNextButton() {
         const videoNextBtn = document.getElementById('videoNextBtn');
         const videoSubtext = document.getElementById('videoSubtext');
-        videoNextBtn.disabled = false;
-        videoNextBtn.style.background = "var(--success)";
-        videoNextBtn.textContent = "Proceed to Assessment";
-        videoSubtext.textContent = "Video complete! You can now proceed to the assessment test.";
+        const t = translations[currentLang] || translations['en'];
+        if(videoNextBtn) {
+            videoNextBtn.disabled = false;
+            videoNextBtn.style.background = "var(--success)";
+            videoNextBtn.textContent = t.vidBtnUnlock;
+        }
+        if(videoSubtext) {
+            videoSubtext.textContent = t.vidSub;
+        }
     }
 
     function setVideoSource(url) {
@@ -632,12 +1087,16 @@
         const iframe = document.getElementById('videoIframe');
         const videoNextBtn = document.getElementById('videoNextBtn');
         const videoSubtext = document.getElementById('videoSubtext');
+        const t = translations[currentLang] || translations['en'];
 
-        // Reset button state whenever source changes
-        videoNextBtn.disabled = true;
-        videoNextBtn.style.background = "#cbd5e1";
-        videoNextBtn.textContent = "Watch Video Completely to Unlock Assessment";
-        videoSubtext.textContent = "Watch the complete video to unlock the assessment test.";
+        if(videoNextBtn) {
+            videoNextBtn.disabled = true;
+            videoNextBtn.style.background = "#cbd5e1";
+            videoNextBtn.textContent = t.vidBtnLock;
+        }
+        if(videoSubtext) {
+            videoSubtext.textContent = t.vidSub;
+        }
 
         if (iframeTimer) {
             clearTimeout(iframeTimer);
@@ -645,49 +1104,59 @@
         }
 
         if (url.includes('youtube.com/embed') || url.includes('youtu.be') || url.includes('drive.google.com/file/d/')) {
-            nativeWrapper.style.display = 'none';
-            iframeWrapper.style.display = 'block';
-            player.pause();
-            iframe.src = parseUniversalVideoUrl(url);
+            if(nativeWrapper) nativeWrapper.style.display = 'none';
+            if(iframeWrapper) iframeWrapper.style.display = 'block';
+            if(player) player.pause();
+            if(iframe) iframe.src = parseUniversalVideoUrl(url);
 
-            // For embedded links (like YouTube), unlock the button after 30 seconds as a reliable fallback since cross-origin video end events are restricted
             iframeTimer = setTimeout(() => {
                 unlockVideoNextButton();
             }, 30000);
         } else {
-            iframeWrapper.style.display = 'none';
-            nativeWrapper.style.display = 'block';
-            iframe.src = '';
+            if(iframeWrapper) iframeWrapper.style.display = 'none';
+            if(nativeWrapper) nativeWrapper.style.display = 'block';
+            if(iframe) iframe.src = '';
             
             let formattedUrl = parseUniversalVideoUrl(url);
-            source.src = formattedUrl;
-            player.load();
+            if(source) source.src = formattedUrl;
+            if(player) player.load();
         }
     }
 
     const videoPlayer = document.getElementById('orientationVideo');
-    const videoNextBtn = document.getElementById('videoNextBtn');
+    if(videoPlayer) {
+        videoPlayer.addEventListener('ended', () => {
+            unlockVideoNextButton();
+        });
+    }
 
-    // Strictly unlocks only when the HTML5 video playback reaches the 'ended' event
-    videoPlayer.addEventListener('ended', () => {
-        unlockVideoNextButton();
-    });
-
-    videoNextBtn.addEventListener('click', () => {
-        if (!videoNextBtn.disabled) {
-            showStep('step-quiz');
-        }
-    });
+    const videoNextBtnElem = document.getElementById('videoNextBtn');
+    if(videoNextBtnElem) {
+        videoNextBtnElem.addEventListener('click', () => {
+            if (!videoNextBtnElem.disabled) {
+                showStep('step-quiz');
+            }
+        });
+    }
 
     function broadcastConfig(config) {
         Object.values(peerConnections).forEach(conn => {
-            conn.send({ type: 'config_update', config: config });
+            try {
+                conn.send({ type: 'config_update', config: config });
+            } catch(e) {}
         });
     }
 
     function initAdminPeerHost() {
         const code = Math.floor(1000 + Math.random() * 9000).toString(); 
-        document.getElementById('desk-code-display').innerText = "DESK CODE: " + code;
+        const codeDisplay = document.getElementById('desk-code-display');
+        if(codeDisplay) {
+            codeDisplay.innerText = code;
+        }
+
+        try {
+            if(peer) peer.destroy();
+        } catch(e) {}
 
         peer = new Peer('company_admin_desk_' + code, peerConfig);
 
@@ -696,169 +1165,359 @@
                 if (data.type === 'register') {
                     peerConnections[data.visitor.id] = conn;
                     visitorRecords[data.visitor.id] = data.visitor;
-                    renderAdminTable();
+                    saveVisitorRecords();
+                    renderAdminTables();
                     
-                    conn.send({
-                        type: 'config_update',
-                        config: { 
-                            bgImage: localStorage.getItem('saved_bg_image') || '',
-                            videoUrl: localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || currentVideoUrl 
-                        }
-                    });
+                    try {
+                        conn.send({
+                            type: 'config_update',
+                            config: { 
+                                bgImage: localStorage.getItem('saved_bg_image') || '',
+                                videoUrl: localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || currentVideoUrl 
+                            }
+                        });
+                    } catch(e) {}
                 } else if (data.type === 'completed') {
                     if (visitorRecords[data.visitorId]) {
                         visitorRecords[data.visitorId].status = 'completed';
-                        renderAdminTable();
+                        saveVisitorRecords();
+                        renderAdminTables();
                     }
                 }
             });
         });
     }
 
-    document.getElementById('visitor-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const code = document.getElementById('adminCodeInput').value.trim();
-        const name = document.getElementById('fullName').value.trim();
-        const phone = document.getElementById('phoneNo').value.trim();
-        const connErr = document.getElementById('conn-error');
-        const submitBtn = document.getElementById('submitRegBtn');
+    const visitorForm = document.getElementById('visitor-form');
+    if(visitorForm) {
+        visitorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('adminCodeInput').value.trim();
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phoneNo').value.trim();
+            const connErr = document.getElementById('conn-error');
+            const submitBtn = document.getElementById('submitRegBtn');
 
-        connErr.style.display = 'none';
+            if(connErr) connErr.style.display = 'none';
 
-        if (!code || !name || !phone) return;
+            if (!code || !name || !phone) return;
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Connecting to Desk...";
+            if(submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Connecting to Desk...";
+            }
 
-        const visitorPeer = new Peer(undefined, peerConfig);
+            const visitorPeer = new Peer(undefined, peerConfig);
 
-        visitorPeer.on('open', () => {
-            const visitorId = 'vis_' + Date.now();
-            const now = new Date();
-            const formattedDate = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            visitorPeer.on('open', () => {
+                const visitorId = 'vis_' + Date.now();
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            activeConn = visitorPeer.connect('company_admin_desk_' + code);
+                activeConn = visitorPeer.connect('company_admin_desk_' + code);
 
-            activeConn.on('open', () => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Submit for Approval";
+                activeConn.on('open', () => {
+                    if(submitBtn) {
+                        submitBtn.disabled = false;
+                        const t = translations[currentLang] || translations['en'];
+                        submitBtn.textContent = t.submitReg;
+                    }
 
-                activeConn.send({
-                    type: 'register',
-                    visitor: {
+                    const newVisitor = {
                         id: visitorId,
                         name: name,
                         phone: phone,
                         status: 'pending',
-                        dateTime: formattedDate
+                        dateTime: formattedDate,
+                        language: currentLang
+                    };
+
+                    visitorRecords[visitorId] = newVisitor;
+                    saveVisitorRecords();
+
+                    activeConn.send({
+                        type: 'register',
+                        visitor: newVisitor
+                    });
+
+                    showStep('step-pending');
+                });
+
+                activeConn.on('data', (data) => {
+                    if (data.type === 'status_update') {
+                        if (data.status === 'approved') {
+                            showStep('step-video');
+                        } else if (data.status === 'rejected') {
+                            const appStatus = document.getElementById('approval-status');
+                            if(appStatus) {
+                                appStatus.innerText = "ACCESS REJECTED BY SECURITY ADMIN";
+                                appStatus.style.color = "var(--error)";
+                            }
+                        }
+                    } else if (data.type === 'config_update') {
+                        if (data.config.bgImage !== undefined) {
+                            document.body.style.backgroundImage = data.config.bgImage ? `url('${data.config.bgImage}')` : 'none';
+                        }
+                        if (data.config.videoUrl) {
+                            setVideoSource(data.config.videoUrl);
+                        }
                     }
                 });
 
-                showStep('step-pending');
+                setTimeout(() => {
+                    if (!activeConn || !activeConn.open) {
+                        if(submitBtn) {
+                            submitBtn.disabled = false;
+                            const t = translations[currentLang] || translations['en'];
+                            submitBtn.textContent = t.submitReg;
+                        }
+                        if(connErr) connErr.style.display = 'block';
+                    }
+                }, 6000);
             });
 
-            activeConn.on('data', (data) => {
-                if (data.type === 'status_update') {
-                    if (data.status === 'approved') {
-                        showStep('step-video');
-                    } else if (data.status === 'rejected') {
-                        document.getElementById('approval-status').innerText = "ACCESS REJECTED BY ADMIN";
-                        document.getElementById('approval-status').style.color = "var(--error)";
-                    }
-                } else if (data.type === 'config_update') {
-                    if (data.config.bgImage !== undefined) {
-                        document.body.style.backgroundImage = data.config.bgImage ? `url('${data.config.bgImage}')` : 'none';
-                    }
-                    if (data.config.videoUrl) {
-                        setVideoSource(data.config.videoUrl);
-                    }
-                }
-            });
-
-            setTimeout(() => {
-                if (!activeConn || !activeConn.open) {
+            visitorPeer.on('error', () => { 
+                if(submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = "Submit for Approval";
-                    connErr.style.display = 'block';
+                    const t = translations[currentLang] || translations['en'];
+                    submitBtn.textContent = t.submitReg;
                 }
-            }, 6000);
+                if(connErr) connErr.style.display = 'block'; 
+            });
         });
+    }
 
-        visitorPeer.on('error', () => { 
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Submit for Approval";
-            connErr.style.display = 'block'; 
-        });
-    });
+    const quizForm = document.getElementById('quiz-form');
+    if(quizForm) {
+        quizForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const answers = { q1: 'yes', q2: 'b' };
+            const formData = new FormData(e.target);
+            let score = 0;
+            let total = Object.keys(answers).length;
 
-    document.getElementById('quiz-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const answers = { q1: 'yes', q2: 'b' };
-        const formData = new FormData(e.target);
-        let score = 0;
-        let total = Object.keys(answers).length;
-
-        for (let [q, a] of Object.entries(answers)) {
-            if (formData.get(q) === a) score++;
-        }
-
-        if (score === total) {
-            const now = new Date();
-            document.getElementById('cert-name').innerText = document.getElementById('fullName').value;
-            document.getElementById('cert-phone').innerText = document.getElementById('phoneNo').value;
-            document.getElementById('cert-date').innerText = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-
-            if (activeConn) {
-                activeConn.send({ type: 'completed' });
+            for (let [q, a] of Object.entries(answers)) {
+                if (formData.get(q) === a) score++;
             }
 
-            showStep('step-certificate');
-        } else {
-            const err = document.getElementById('quiz-error');
-            err.style.display = 'block';
-            err.innerText = `You scored ${score}/${total}. A 100% score is required to pass. Please review and try again.`;
-        }
-    });
+            if (score === total) {
+                const now = new Date();
+                const certName = document.getElementById('cert-name');
+                const certPhone = document.getElementById('cert-phone');
+                const certDate = document.getElementById('cert-date');
+                const fullNameVal = document.getElementById('fullName').value;
+                const phoneNoVal = document.getElementById('phoneNo').value;
+
+                if(certName) certName.innerText = fullNameVal;
+                if(certPhone) certPhone.innerText = phoneNoVal;
+                if(certDate) certDate.innerText = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+                for (let id in visitorRecords) {
+                    if (visitorRecords[id].phone === phoneNoVal && visitorRecords[id].name === fullNameVal) {
+                        visitorRecords[id].status = 'completed';
+                        saveVisitorRecords();
+                        break;
+                    }
+                }
+
+                if (activeConn) {
+                    try { activeConn.send({ type: 'completed' }); } catch(e) {}
+                }
+
+                showStep('step-certificate');
+            } else {
+                const err = document.getElementById('quiz-error');
+                if(err) {
+                    err.style.display = 'block';
+                    err.innerText = `You scored ${score}/${total}. A 100% score is strictly required to pass. Please review safety guidelines and retry.`;
+                }
+            }
+        });
+    }
 
     function setVisitorStatus(id, newStatus) {
         if (visitorRecords[id]) {
             visitorRecords[id].status = newStatus;
+            saveVisitorRecords();
             
             if (peerConnections[id]) {
-                peerConnections[id].send({
-                    type: 'status_update',
-                    status: newStatus
-                });
+                try {
+                    peerConnections[id].send({
+                        type: 'status_update',
+                        status: newStatus
+                    });
+                } catch(e) {}
             }
-            renderAdminTable();
+            renderAdminTables();
         }
     }
 
-    function renderAdminTable() {
-        const tbody = document.getElementById('visitor-table-body');
-        tbody.innerHTML = '';
+    function saveVisitorRecords() {
+        try {
+            localStorage.setItem('saved_visitor_records', JSON.stringify(visitorRecords));
+        } catch(e) {}
+    }
 
-        const keys = Object.keys(visitorRecords).reverse();
+    function clearAllRecords() {
+        if (confirm("Are you sure you want to clear all persistent visitor records? This action cannot be undone.")) {
+            visitorRecords = {};
+            localStorage.removeItem('saved_visitor_records');
+            renderAdminTables();
+            alert("All records successfully cleared.");
+        }
+    }
 
+    function resetFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const langFilter = document.getElementById('langFilter');
+        const calendarFilter = document.getElementById('calendarFilter');
+
+        if(searchInput) searchInput.value = '';
+        if(statusFilter) statusFilter.value = 'all';
+        if(langFilter) langFilter.value = 'all';
+        if(calendarFilter) calendarFilter.value = '';
+
+        renderAdminTables();
+    }
+
+    function exportToExcel() {
+        const keys = Object.keys(visitorRecords);
         if (keys.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Waiting for mobile visitors to connect...</td></tr>';
+            alert("No visitor logs available to export.");
             return;
         }
 
+        let csvContent = "data:text/csv;charset=utf-8,Timestamp,Visitor Name,Phone Number,Status,Language\r\n";
+
         keys.forEach(id => {
+            const item = visitorRecords[id];
+            const row = [
+                `"${item.dateTime || ''}"`,
+                `"${item.name || ''}"`,
+                `"${item.phone || ''}"`,
+                `"${item.status || ''}"`,
+                `"${item.language || 'en'}"`
+            ].join(",");
+            csvContent += row + "\r\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `mplastics_enterprise_visitor_log_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function renderAdminTables() {
+        renderApprovalTable();
+        renderReportTable();
+    }
+
+    function renderApprovalTable() {
+        const tbody = document.getElementById('approval-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const keys = Object.keys(visitorRecords).reverse();
+        const pendingKeys = keys.filter(id => visitorRecords[id].status === 'pending');
+
+        if (pendingKeys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b;">No pending authorization requests.</td></tr>';
+            return;
+        }
+
+        pendingKeys.forEach(id => {
             const item = visitorRecords[id];
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${item.dateTime}</td>
-                <td><strong>${item.name}</strong></td>
-                <td>${item.phone}</td>
-                <td><span class="badge badge-${item.status}">${item.status}</span></td>
+                <td>${item.dateTime || ''}</td>
+                <td><strong>${item.name || ''}</strong></td>
+                <td>${item.phone || ''}</td>
+                <td><span class="badge badge-pending">PENDING</span></td>
                 <td>
-                    ${item.status === 'pending' ? `
-                        <button class="action-btn btn-approve" onclick="setVisitorStatus('${id}', 'approved')">Approve</button>
-                        <button class="action-btn btn-reject" onclick="setVisitorStatus('${id}', 'rejected')">Reject</button>
-                    ` : '---'}
+                    <button class="action-btn btn-approve" onclick="setVisitorStatus('${id}', 'approved')">Approve</button>
+                    <button class="action-btn btn-reject" onclick="setVisitorStatus('${id}', 'rejected')">Reject</button>
                 </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderReportTable() {
+        const tbody = document.getElementById('report-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+        const langFilter = document.getElementById('langFilter')?.value || 'all';
+        const calendarFilter = document.getElementById('calendarFilter')?.value || '';
+
+        const keys = Object.keys(visitorRecords).reverse();
+
+        let totalCount = keys.length;
+        let pendingCount = 0;
+        let clearedCount = 0;
+
+        keys.forEach(id => {
+            const item = visitorRecords[id];
+            if (item.status === 'pending') pendingCount++;
+            if (item.status === 'approved' || item.status === 'completed') clearedCount++;
+        });
+
+        const statTotal = document.getElementById('stat-total');
+        const statPending = document.getElementById('stat-pending');
+        const statCleared = document.getElementById('stat-cleared');
+
+        if(statTotal) statTotal.innerText = totalCount;
+        if(statPending) statPending.innerText = pendingCount;
+        if(statCleared) statCleared.innerText = clearedCount;
+
+        const filteredKeys = keys.filter(id => {
+            const item = visitorRecords[id];
+            const nameMatch = (item.name || '').toLowerCase().includes(searchQuery);
+            const phoneMatch = (item.phone || '').includes(searchQuery);
+            const matchesSearch = nameMatch || phoneMatch;
+
+            const matchesStatus = (statusFilter === 'all') || (item.status === statusFilter);
+            const matchesLang = (langFilter === 'all') || ((item.language || 'en') === langFilter);
+
+            let matchesCalendar = true;
+            if (calendarFilter && item.dateTime) {
+                try {
+                    const parts = item.dateTime.split(' ')[0].split('/');
+                    if (parts.length === 3) {
+                        const month = parts[0].padStart(2, '0');
+                        const day = parts[1].padStart(2, '0');
+                        const year = parts[2];
+                        const itemDateFormatted = `${year}-${month}-${day}`;
+                        matchesCalendar = (itemDateFormatted === calendarFilter);
+                    }
+                } catch(e) {
+                    matchesCalendar = true;
+                }
+            }
+
+            return matchesSearch && matchesStatus && matchesLang && matchesCalendar;
+        });
+
+        if (filteredKeys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b;">No matching visitor records found in reports.</td></tr>';
+            return;
+        }
+
+        filteredKeys.forEach(id => {
+            const item = visitorRecords[id];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.dateTime || ''}</td>
+                <td><strong>${item.name || ''}</strong></td>
+                <td>${item.phone || ''}</td>
+                <td><span class="badge badge-${item.status || 'pending'}">${item.status || 'pending'}</span></td>
+                <td><span style="text-transform: uppercase; font-weight: 700; color: #475569;">${item.language || 'en'}</span></td>
             `;
             tbody.appendChild(tr);
         });
