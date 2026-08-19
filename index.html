@@ -588,7 +588,8 @@ Leave with stories, we probably shouldn't tell !</p>
             <div class="gatepass-container">
                 <div class="gatepass-title">Scan Barcode at Entry</div>
                 <div class="gatepass-wrapper">
-                    <img id="gatePassDisplayImg" src="An-example-of-QR-code.webp" alt="Gate Pass Barcode">
+                    <!-- Google Drive Direct Image Link -->
+                    <img id="gatePassDisplayImg" src="https://lh3.googleusercontent.com/d/1EBUyDR8-oUDvL9JT4HfqoRAHFsfh0otV=s1000" alt="Gate Pass Barcode">
                 </div>
             </div>
             
@@ -613,14 +614,6 @@ Leave with stories, we probably shouldn't tell !</p>
                     <div class="file-input-wrapper">
                         <input type="file" id="bgVideoFileInput" accept="video/*" onchange="handleVideoUpload(this)">
                         <button type="button" class="remove-btn" onclick="removeBgVideo()">Reset Video</button>
-                    </div>
-                </div>
-
-                <div style="margin-top: 10px;">
-                    <label>Upload Gate Pass Barcode Image</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="gatePassFileInput" accept="image/*" onchange="handleGatePassUpload(this)">
-                        <button type="button" class="remove-btn" onclick="removeGatePass()">Remove Pass</button>
                     </div>
                 </div>
             </div>
@@ -656,20 +649,18 @@ Leave with stories, we probably shouldn't tell !</p>
             }
         });
 
-        // --- IndexedDB Setup for Permanent Storage ---
+        // --- IndexedDB Setup for Permanent Storage (Videos Only) ---
         let db;
         const dbRequest = indexedDB.open("PartyAppDB", 3);
 
         dbRequest.onupgradeneeded = function(event) {
             db = event.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos");
-            if (!db.objectStoreNames.contains("gatepass")) db.createObjectStore("gatepass");
         };
 
         dbRequest.onsuccess = function(event) {
             db = event.target.result;
             loadSavedVideo();
-            loadSavedGatePass();
             setTimeout(initPage1ScratchCard, 100);
         };
 
@@ -777,43 +768,6 @@ Leave with stories, we probably shouldn't tell !</p>
             canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); e.preventDefault(); }, { passive: false });
             canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); }, { passive: false });
             canvas.addEventListener('touchend', () => { isDrawing = false; });
-        }
-
-        // --- Gate Pass Handlers ---
-        function loadSavedGatePass() {
-            if (!db) return;
-            const transaction = db.transaction(["gatepass"], "readonly");
-            const request = transaction.objectStore("gatepass").get("customGatePass");
-            request.onsuccess = function(event) {
-                if (event.target.result) {
-                    const fileURL = URL.createObjectURL(event.target.result);
-                    document.getElementById('gatePassDisplayImg').src = fileURL;
-                }
-            };
-        }
-
-        function handleGatePassUpload(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const transaction = db.transaction(["gatepass"], "readwrite");
-                transaction.objectStore("gatepass").put(file, "customGatePass");
-                transaction.oncomplete = () => {
-                    const fileURL = URL.createObjectURL(file);
-                    document.getElementById('gatePassDisplayImg').src = fileURL;
-                    alert('Gate pass barcode saved!');
-                };
-            }
-        }
-
-        function removeGatePass() {
-            if (!db) return;
-            const transaction = db.transaction(["gatepass"], "readwrite");
-            transaction.objectStore("gatepass").delete("customGatePass");
-            transaction.oncomplete = () => {
-                document.getElementById('gatePassDisplayImg').src = "An-example-of-QR-code.webp";
-                document.getElementById('gatePassFileInput').value = '';
-                alert('Gate pass removed.');
-            };
         }
 
         // --- Countdown Timer Logic ---
