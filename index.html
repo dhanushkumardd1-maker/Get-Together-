@@ -504,7 +504,7 @@
             </div>
         </div>
 
-        <!-- PAGE 2: Event Details, Countdown, and Gate Pass Barcode (No Scratch) -->
+        <!-- PAGE 2: Event Details, Countdown, and Gate Pass Barcode (Fully responsive across Mobile & Desktop) -->
         <div class="page" id="page2">
             <!-- Detailed Agenda Section -->
             <div class="agenda-section">
@@ -540,7 +540,7 @@
                 </div>
                 <div class="detail-card">
                     <h3>Location</h3>
-                    <p><a href="https://maps.app.goo.gl/UL5feDp5uJnNsLbw8" target="_blank" rel="noopener noreferrer">Niwa L22 Phoenix Kessaku,Rajajinagar, Bangalore↗</a></p>
+                    <p><a href="https://maps.app.goo.gl/UL5feDp5uJnNsLbw8" target="_blank" rel="noopener noreferrer">The Energy Lounge, Downtown ↗</a></p>
                 </div>
             </div>
 
@@ -555,7 +555,7 @@
                 </div>
             </div>
 
-            <!-- Gate Pass Barcode Section (Plain Display) -->
+            <!-- Gate Pass Barcode Section (Plain Display - Fixed for iOS & Android) -->
             <div class="gatepass-container" id="gatePassContainer">
                 <div class="gatepass-title">Your Gate Pass Barcode</div>
                 <div class="gatepass-wrapper">
@@ -598,11 +598,22 @@
         // --- Page Navigation Control ---
         function goToPage(pageNum) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page' + pageNum).classList.add('active');
+            const targetPage = document.getElementById('page' + pageNum);
+            targetPage.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
             if (pageNum === 1) {
                 setTimeout(initPage1ScratchCard, 50);
+            } else if (pageNum === 2) {
+                // Force mobile layout recalculation for the barcode container
+                setTimeout(() => {
+                    const gatePassContainer = document.getElementById('gatePassContainer');
+                    if (gatePassContainer.style.display === 'block') {
+                        gatePassContainer.style.display = 'none';
+                        void gatePassContainer.offsetHeight; // trigger reflow
+                        gatePassContainer.style.display = 'block';
+                    }
+                }, 50);
             }
         }
 
@@ -745,7 +756,7 @@
             canvas.addEventListener('touchend', () => { isDrawing = false; });
         }
 
-        // --- Gate Pass Handlers (Plain Display without Scratch) ---
+        // --- Gate Pass Handlers (Plain Display optimized for mobile browsers) ---
         function loadSavedGatePass() {
             if (!db) return;
             const transaction = db.transaction(["gatepass"], "readonly");
@@ -766,8 +777,11 @@
 
         function displayGatePassFromBlob(blob) {
             const fileURL = URL.createObjectURL(blob);
-            document.getElementById('gatePassDisplayImg').src = fileURL;
-            document.getElementById('gatePassContainer').style.display = 'block';
+            const imgEl = document.getElementById('gatePassDisplayImg');
+            imgEl.src = fileURL;
+            // Force display block and handle layout recalculation for mobile webkit engines
+            const container = document.getElementById('gatePassContainer');
+            container.style.display = 'block';
         }
 
         function removeGatePass() {
