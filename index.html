@@ -3,1526 +3,822 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPlastics Toys & Engineering - Enterprise Visitor & HSE Safety Compliance Hub</title>
-    <!-- PeerJS for Real-Time P2P Security Desk Synchronization -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <title>Let's Get-Together - Exclusive Party</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for Popper Effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
         :root {
-            --primary: #0284c7;
-            --primary-dark: #0369a1;
-            --secondary: #0f172a;
-            --bg: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.98);
-            --text: #1e293b;
-            --border: #cbd5e1;
-            --error: #ef4444;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --radius: 14px;
-            --shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.12), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --accent: #10b981;
+            --text-color: #f5f5f4;
+            --text-muted: #a8a29e;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            background-color: var(--bg);
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            background: #000000;
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            transition: background-image 0.4s ease;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        header {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 36px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            position: sticky;
+        /* Background Video Container */
+        #bgVideoContainer {
+            position: fixed;
             top: 0;
-            z-index: 1000;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
         }
 
-        .logo-container { display: flex; flex-direction: column; }
-        .logo { font-size: 19px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        .sub-logo { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
-
-        .view-toggle {
-            display: flex;
-            background: #e2e8f0;
-            padding: 5px;
-            border-radius: 10px;
-        }
-
-        .toggle-btn {
-            border: none;
-            background: transparent;
-            padding: 9px 20px;
-            font-size: 13px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            color: #64748b;
-            transition: all 0.2s ease;
-        }
-
-        .toggle-btn.active {
-            background: #fff;
-            color: var(--primary);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-        }
-
-        main { width: 100%; max-width: 940px; padding: 40px 20px; flex: 1; }
-
-        .view-panel { display: none; }
-        .view-panel.active { display: block; }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 42px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-        }
-
-        h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--secondary); letter-spacing: -0.5px; }
-        p.subtitle { font-size: 14px; color: #64748b; margin-bottom: 28px; line-height: 1.5; }
-
-        .step-panel { display: none; }
-        .step-panel.active { display: block; }
-        
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #334155; }
-        
-        input[type="text"], input[type="tel"], input[type="password"], input[type="url"], input[type="date"], select {
+        #bgVideoContainer video {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 15px;
-            outline: none;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5);
+        }
+
+        /* Natural Warm Light Lamp Blinking Effect */
+        .ambient-lamp {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 300px;
+            background: radial-gradient(ellipse at center, rgba(255, 204, 111, 0.22) 0%, rgba(255, 170, 51, 0.05) 50%, transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+            animation: naturalBlink 6s ease-in-out infinite;
+        }
+
+        @keyframes naturalBlink {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            30% { opacity: 0.95; transform: translateX(-50%) scale(1.05); }
+            45% { opacity: 0.7; transform: translateX(-50%) scale(0.98); }
+            70% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+            85% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 900px;
+            background: rgba(20, 18, 16, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 28px;
+            padding: 45px 35px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-align: center;
+            animation: containerEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes containerEntrance {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Page Management */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+            animation: fadeInPage 0.6s ease forwards;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+            50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+        }
+
+        /* 1st Page Scratch Card Container */
+        .scratch-preview-container {
+            margin: 0 auto 25px auto;
+            max-width: 320px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: #111;
+            position: relative;
+            height: 180px;
+        }
+
+        .scratch-preview-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .scratch-preview-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 3.6rem);
+            margin-bottom: 15px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        /* Detailed Schedule / Itinerary Section */
+        .agenda-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 35px;
+            text-align: left;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+        }
+
+        .agenda-section:hover {
+            border-color: rgba(245, 158, 11, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .agenda-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #fbbf24;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .agenda-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .agenda-item {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 16px;
+            border-radius: 14px;
+            border-left: 3px solid var(--primary);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .agenda-item:hover {
+            transform: scale(1.02);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .agenda-item span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .agenda-item h4 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .agenda-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .event-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .detail-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px;
+            border-radius: 20px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease, border-color 0.4s ease;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            background: rgba(245, 158, 11, 0.05);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .detail-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .detail-card p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .detail-card a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .detail-card a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Countdown Section */
+        .countdown-container {
+            margin-bottom: 35px;
+        }
+
+        .countdown-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .time-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 14px 18px;
+            border-radius: 16px;
+            min-width: 75px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .time-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .time-box span {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+
+        .time-box label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Gate Pass Section (Plain Display without Scratch) */
+        .gatepass-container {
+            display: none;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .gatepass-title {
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .gatepass-wrapper {
+            width: 240px;
+            height: 240px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
             background: #fff;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gatepass-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+            display: block;
+        }
+
+        /* Admin Section Styling (Hidden by default) */
+        .admin-section {
+            display: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 35px;
+            padding-top: 30px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 20px;
+        }
+
+        .admin-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+        }
+
+        .admin-controls {
+            display: none;
+            margin-top: 15px;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .admin-controls label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .file-input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: var(--primary);
+        }
+
+        .remove-btn {
+            background: #ef4444 !important;
+            padding: 10px 14px !important;
+            font-size: 0.85rem !important;
+            width: auto !important;
+            margin: 0 !important;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            outline: none;
         }
 
         input:focus, select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
 
-        .btn {
-            width: 100%;
-            background: var(--primary);
-            color: #fff;
+        button.admin-submit {
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
             border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
-        }
-
-        .btn:hover { background: var(--primary-dark); }
-        .btn:active { transform: scale(0.99); }
-        .btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
-
-        .status-box {
-            text-align: center;
-            padding: 32px;
-            border-radius: var(--radius);
-            background: #f0f9ff;
-            border: 2px dashed var(--primary);
-            margin-bottom: 24px;
-        }
-
-        .video-container {
-            position: relative;
-            width: 100%;
-            border-radius: var(--radius);
-            overflow: hidden;
-            background: #000;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        }
-
-        video { width: 100%; display: block; }
-
-        .iframe-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            height: 0;
-            background: #000;
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .iframe-container iframe {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%; border: none;
-        }
-
-        .quiz-question { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .quiz-option { display: flex; align-items: center; gap: 12px; margin-top: 10px; font-size: 14px; font-weight: 500; cursor: pointer; padding: 10px 14px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.2s; }
-        .quiz-option:hover { background: #f1f5f9; border-color: var(--primary); }
-        .quiz-option input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-
-        .alert-error {
-            background: #fef2f2;
-            color: var(--error);
-            border: 1px solid #fecaca;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-top: 16px;
-            display: none;
-        }
-
-        .certificate {
-            border: 8px double var(--primary);
-            padding: 40px;
-            text-align: center;
-            background: #fff;
-            border-radius: var(--radius);
-            box-shadow: inset 0 0 25px rgba(0,0,0,0.02);
-        }
-
-        .certificate h1 { font-size: 26px; color: var(--primary-dark); margin-bottom: 12px; letter-spacing: 1px; }
-        .certificate .visitor-name { font-size: 28px; font-weight: 800; margin: 20px 0; text-decoration: underline; color: var(--secondary); }
-
-        /* Premium Admin Navigation Cards Grid */
-        .admin-nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 30px;
-        }
-
-        .admin-nav-card {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            color: #fff;
-            padding: 24px 16px;
             border-radius: 12px;
-            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100px;
-            line-height: 1.4;
-        }
-
-        .admin-nav-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
-            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-        }
-
-        .admin-nav-card.active-tab {
-            border-color: #fff;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.4);
-        }
-
-        .admin-section-content {
-            display: none;
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            padding: 24px;
-            border-radius: var(--radius);
-            margin-bottom: 28px;
-        }
-
-        .admin-section-content.active-section {
-            display: block;
-        }
-
-        .table-responsive { width: 100%; overflow-x: auto; margin-top: 16px; border-radius: 10px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; text-align: left; background: #fff; }
-        th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
-        th { background: #f1f5f9; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-pending { background: #fef3c7; color: #d97706; }
-        .badge-approved { background: #dcfce7; color: #16a34a; }
-        .badge-rejected { background: #fee2e2; color: #dc2626; }
-        .badge-completed { background: #dbeafe; color: #0284c7; }
-
-        .action-btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 700;
-            margin-right: 6px;
-            transition: opacity 0.2s;
-        }
-        .action-btn:hover { opacity: 0.85; }
-        .btn-approve { background: var(--success); color: #fff; }
-        .btn-reject { background: var(--error); color: #fff; }
-        
-        /* Matched layout structure exactly like reference image */
-        .top-admin-dashboard-layout {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            align-items: stretch;
-            margin-bottom: 24px;
-        }
-        @media(max-width: 768px) {
-            .top-admin-dashboard-layout { grid-template-columns: 1fr; }
-        }
-
-        .code-box-wrapper {
-            background: #fff;
-            border: 2px dashed var(--primary);
-            border-radius: var(--radius);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            height: 100%;
-        }
-
-        .code-box {
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: 6px;
-            color: var(--primary);
-            text-align: center;
-            margin-top: 4px;
-        }
-
-        .analytics-card-wrapper {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .monitoring-banner {
             width: 100%;
-            background: var(--primary);
-            color: #fff;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-            padding: 10px;
-            border-radius: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
         }
 
-        .metrics-grid-ref {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+        @media(max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+            }
         }
-
-        .metric-box-ref {
-            background: #fff;
-            padding: 14px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            text-align: left;
-        }
-        .metric-title-ref { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .metric-value-ref { font-size: 24px; font-weight: 800; color: var(--secondary); margin-top: 4px; }
-
-        /* Filter Bars */
-        .filter-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1.2fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        @media(max-width: 900px) {
-            .filter-grid { grid-template-columns: 1fr; }
-        }
-        .filter-grid input, .filter-grid select { width: 100%; padding: 10px 14px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <div class="logo">MPlastics Toys & Engineering Private Limited</div>
-            <div class="sub-logo">Hosur Plant • Global HSE Visitor & Safety Compliance Gateway</div>
-        </div>
-        <div class="view-toggle">
-            <button class="toggle-btn active" id="tab-visitor" onclick="switchView('visitor')">Visitor Portal</button>
-            <button class="toggle-btn" id="tab-admin" onclick="switchView('admin')">Security Desk Control</button>
-        </div>
-    </header>
+    <!-- Dynamic Background Video Container -->
+    <div id="bgVideoContainer">
+        <video id="bgVideoElement" autoplay muted loop playsinline>
+            <source id="videoSource" src="https://assets.mixkit.co/videos/preview/mixkit-party-crowd-of-people-dancing-in-a-club-41618-large.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 
-    <main>
-        <!-- ================= VISITOR VIEW ================= -->
-        <div id="view-visitor" class="view-panel active">
-            <div class="card">
+    <!-- Natural Warm Light Lamp Blinking Effect -->
+    <div class="ambient-lamp"></div>
+
+    <div class="container">
+        
+        <!-- PAGE 1: Let's Get-Together -> Quote -> You're Invited -> Scratch Card -->
+        <div class="page active" id="page1">
+            <h1>Let's Get-Together</h1>
+            <p class="subtitle">Come for the friendship 
+Stay for the food
+Leave with stories, we probably shouldn't tell !</p>
+            
+            <div class="tag">You're Invited</div>
+
+            <div class="scratch-preview-container" id="page1ScratchContainer">
+                <video autoplay muted loop playsinline>
+                    <source src="https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-41642-large.mp4" type="video/mp4">
+                </video>
+                <canvas id="page1ScratchCanvas" class="scratch-preview-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- PAGE 2: Event Details, Countdown, and Gate Pass Barcode (No Scratch) -->
+        <div class="page" id="page2">
+            <!-- Detailed Agenda Section -->
+            <div class="agenda-section">
+                <h2>Event Details</h2>
+                <div class="agenda-grid">
+                    <div class="agenda-item">
+                        <span>6:00 PM - 7:00 PM</span>
+                        <h4>Welcome & Mocktails</h4>
+                        <p>Networking, high-energy beats, and refreshing signature drinks.</p>
+                    </div>
+                    <div class="agenda-item">
+                        <span>7:00 PM - 9:00 PM</span>
+                        <h4>Gourmet Dinner</h4>
+                        <p>Multi-course artisan dining experience featuring global cuisines.</p>
+                    </div>
+                    <div class="agenda-item">
+                        <span>9:00 PM Onwards</span>
+                        <h4>After-Party & Music</h4>
+                        <p>Live DJ set, dancing, photo sessions, and open celebrations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Details Grid -->
+            <div class="event-details">
+                <div class="detail-card">
+                    <h3>Date</h3>
+                    <p>September 5, 2026</p>
+                </div>
+                <div class="detail-card">
+                    <h3>Time</h3>
+                    <p>6:00 PM Onwards</p>
+                </div>
+                <div class="detail-card">
+                    <h3>Location</h3>
+                    <p><a href="https://maps.app.goo.gl/UL5feDp5uJnNsLbw8" target="_blank" rel="noopener noreferrer">The Energy Lounge, Downtown ↗</a></p>
+                </div>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div class="countdown-container">
+                <div class="countdown-title">Countdown to the Event</div>
+                <div class="countdown" id="countdown">
+                    <div class="time-box"><span id="days">00</span><label>Days</label></div>
+                    <div class="time-box"><span id="hours">00</span><label>Hours</label></div>
+                    <div class="time-box"><span id="minutes">00</span><label>Mins</label></div>
+                    <div class="time-box"><span id="seconds">00</span><label>Secs</label></div>
+                </div>
+            </div>
+
+            <!-- Gate Pass Barcode Section (Plain Display) -->
+            <div class="gatepass-container" id="gatePassContainer">
+                <div class="gatepass-title">Your Gate Pass Barcode</div>
+                <div class="gatepass-wrapper">
+                    <img id="gatePassDisplayImg" src="" alt="Gate Pass Barcode">
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Login Section (Toggled by pressing '4' four times) -->
+        <div class="admin-section" id="adminSection">
+            <h2>Admin Portal</h2>
+            <div id="loginArea" style="display: flex; gap: 10px; flex-direction: column; max-width: 450px; margin: 0 auto;">
+                <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+                <button type="button" class="admin-submit" onclick="loginAdmin()">Login to Admin</button>
+            </div>
+
+            <div class="admin-controls" id="adminControlsArea" style="max-width: 450px; margin: 0 auto;">
+                <p style="color: #34d399; font-size: 0.9rem; text-align: center; margin-bottom: 5px;">✔ Logged in successfully</p>
                 
-                <!-- STEP 1: Registration Form -->
-                <div id="step-register" class="step-panel active">
-                    <div class="form-group" style="margin-bottom: 24px;">
-                        <label for="languageSelect" id="lbl-lang">Select Interface Language / மொழி / भाषा / భాష / ಭಾಷೆ</label>
-                        <select id="languageSelect" onchange="changeLanguage(this.value)">
-                            <option value="en">English</option>
-                            <option value="ta">தமிழ் (Tamil)</option>
-                            <option value="hi">हिन्दी (Hindi)</option>
-                            <option value="te">తెలుగు (Telugu)</option>
-                            <option value="kn">ಕನ್ನಡ (Kannada)</option>
-                        </select>
-                    </div>
-
-                    <h2 id="txt-reg-title">General Safety & Security Induction</h2>
-                    <p class="subtitle" id="txt-reg-sub">Connect to the plant desk session code and verify your official credentials.</p>
-                    <form id="visitor-form">
-                        <div class="form-group">
-                            <label for="adminCodeInput" id="txt-label-code">Desk Session Code (4-Digits)</label>
-                            <input type="text" id="adminCodeInput" required placeholder="e.g. 4821" maxlength="4">
-                        </div>
-                        <div class="form-group">
-                            <label for="fullName" id="txt-label-name">Full Name (As per Government ID)</label>
-                            <input type="text" id="fullName" required placeholder="Enter your full legal name">
-                        </div>
-                        <div class="form-group">
-                            <label for="phoneNo" id="txt-label-phone">Mobile Phone Number</label>
-                            <input type="tel" id="phoneNo" required placeholder="Enter active mobile number">
-                        </div>
-                        <div id="conn-error" class="alert-error">Failed to connect to Security Desk. Ensure the Security Admin console is active on the desk laptop with a matching 4-digit session code.</div>
-                        <button type="submit" class="btn" id="submitRegBtn">Submit for Security Approval</button>
-                    </form>
-                </div>
-
-                <!-- STEP 2: Pending Screen -->
-                <div id="step-pending" class="step-panel">
-                    <h2 id="txt-pend-title">Waiting for Security Authorization</h2>
-                    <p class="subtitle" id="txt-pend-sub">Secure connection established with plant safety desk.</p>
-                    <div class="status-box">
-                        <p style="font-size: 14px; font-weight: 700; color: #475569; margin-bottom: 8px;">LIVE CLEARANCE STATUS:</p>
-                        <p><strong id="approval-status" style="font-size: 22px; color: var(--warning);">PENDING ADMIN APPROVAL</strong></p>
-                        <p style="font-size: 13px; color: #64748b; margin-top: 14px; line-height: 1.5;" id="txt-pend-note">
-                            Please remain on this screen. Gate clearance updates automatically once verified by the plant security officer.
-                        </p>
+                <div>
+                    <label>Upload Permanent Video (Background)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="bgVideoFileInput" accept="video/*" onchange="handleVideoUpload(this)">
+                        <button type="button" class="remove-btn" onclick="removeBgVideo()">Reset Video</button>
                     </div>
                 </div>
 
-                <!-- STEP 3: Video -->
-                <div id="step-video" class="step-panel">
-                    <h2 id="txt-vid-title">Mandatory HSE Safety Orientation Video</h2>
-                    <p class="subtitle" id="videoSubtext">Watch the entire industrial safety compliance film to unlock your assessment test.</p>
-                    
-                    <div class="video-container" id="nativeVideoWrapper">
-                        <video id="orientationVideo" controls playsinline controlsList="nodownload" preload="metadata">
-                            <source id="videoSource" src="" type="video/mp4">
-                            Your browser does not support HTML video.
-                        </video>
+                <div style="margin-top: 10px;">
+                    <label>Upload Gate Pass Barcode Image</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="gatePassFileInput" accept="image/*" onchange="handleGatePassUpload(this)">
+                        <button type="button" class="remove-btn" onclick="removeGatePass()">Remove Pass</button>
                     </div>
-
-                    <div class="iframe-container" id="iframeVideoWrapper">
-                        <iframe id="videoIframe" src="" allowfullscreen></iframe>
-                    </div>
-
-                    <button id="videoNextBtn" class="btn" disabled>Watch Video Completely to Unlock Assessment</button>
-                </div>
-
-                <!-- STEP 4: Quiz -->
-                <div id="step-quiz" class="step-panel">
-                    <h2 id="txt-quiz-title">HSE Safety & Compliance Assessment</h2>
-                    <p class="subtitle" id="txt-quiz-sub">A mandatory 100% compliance score is required to obtain your gate clearance pass.</p>
-                    <form id="quiz-form">
-                        <div class="quiz-question">
-                            <p><strong id="txt-q1">1. Are visitor safety badges, closed footwear, and PPE mandatory inside the manufacturing shop floor?</strong></p>
-                            <label class="quiz-option"><input type="radio" name="q1" value="yes" required> <span id="txt-q1-opt1">Yes, mandatory across all operational zones</span></label>
-                            <label class="quiz-option"><input type="radio" name="q1" value="no"> <span id="txt-q1-opt2">No, optional for short visits</span></label>
-                        </div>
-                        <div class="quiz-question">
-                            <p><strong id="txt-q2">2. In case of a fire alarm or emergency evacuation siren, what protocol must be followed?</strong></p>
-                            <label class="quiz-option"><input type="radio" name="q2" value="a"> <span id="txt-q2-opt1">Continue working at your station</span></label>
-                            <label class="quiz-option"><input type="radio" name="q2" value="b" required> <span id="txt-q2-opt2">Immediately follow your assigned escort to the designated assembly point</span></label>
-                        </div>
-                        <div id="quiz-error" class="alert-error"></div>
-                        <button type="submit" class="btn" id="txt-quiz-submit">Submit Safety Assessment</button>
-                    </form>
-                </div>
-
-                <!-- STEP 5: Certificate -->
-                <div id="step-certificate" class="step-panel">
-                    <div class="certificate">
-                        <h1 id="txt-cert-title">INDUSTRIAL ENTRY CLEARANCE CERTIFICATE</h1>
-                        <p id="txt-cert-granted">Officially Granted To</p>
-                        <div class="visitor-name" id="cert-name">---</div>
-                        <p id="txt-cert-passed">Passed Enterprise Safety Orientation & Assessment (100% Verified)</p>
-                        <p style="margin-top: 20px; font-size: 13px; font-weight: 600; color: #475569;">Mobile: <span id="cert-phone"></span></p>
-                        <p style="margin-top: 4px; font-size: 13px; font-weight: 600; color: #475569;">Issued Timestamp: <span id="cert-date"></span></p>
-                    </div>
-                    <button class="btn" style="margin-top: 24px;" onclick="window.print()" id="txt-print-btn">Print / Download Official Pass</button>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ================= ADMIN DASHBOARD VIEW ================= -->
-        <div id="view-admin" class="view-panel">
-            <div class="card">
-                <!-- Admin Password Screen -->
-                <div id="admin-login-sec">
-                    <h2>Enterprise Security Authentication</h2>
-                    <p class="subtitle">Enter security desk administrative password to access control console.</p>
-                    <div class="form-group">
-                        <label for="adminPass">Administrator Password</label>
-                        <input type="password" id="adminPass" placeholder="Enter password" onkeydown="if(event.key==='Enter') verifyAdminPassword()">
-                    </div>
-                    <div id="admin-pass-err" class="alert-error">Incorrect administrative password. Please retry.</div>
-                    <button class="btn" onclick="verifyAdminPassword()">Authorize Security Console</button>
-                </div>
-
-                <!-- Admin Real-Time Table & Settings -->
-                <div id="admin-dashboard-sec" style="display: none;">
-                    
-                    <!-- Top Matched Layout Structure matching the Reference Image -->
-                    <div style="margin-bottom: 20px;">
-                        <h2 style="font-size: 24px; font-weight: 800; color: var(--secondary); margin-bottom: 4px;">Plant Security Control Center</h2>
-                        <p style="font-size: 14px; color: #64748b;">Broadcast this 4-digit dynamic session code to visiting personnel for device registration:</p>
-                    </div>
-
-                    <div class="top-admin-dashboard-layout">
-                        <div class="code-box-wrapper">
-                            <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Active Desk Session Code</span>
-                            <div class="code-box" id="desk-code-display">----</div>
-                        </div>
-
-                        <div class="analytics-card-wrapper">
-                            <div class="monitoring-banner">Monitoring Dashboard</div>
-                            <div class="metrics-grid-ref">
-                                <div class="metric-box-ref">
-                                    <div class="metric-title-ref">Total Logs</div>
-                                    <div class="metric-value-ref" id="stat-total">0</div>
-                                </div>
-                                <div class="metric-box-ref">
-                                    <div class="metric-title-ref">Pending Review</div>
-                                    <div class="metric-value-ref" id="stat-pending" style="color: var(--warning);">0</div>
-                                </div>
-                                <div class="metric-box-ref">
-                                    <div class="metric-title-ref">Cleared Active</div>
-                                    <div class="metric-value-ref" id="stat-cleared" style="color: var(--success);">0</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Premium Admin Navigation Cards Grid -->
-                    <div class="admin-nav-grid">
-                        <div class="admin-nav-card active-tab" id="nav-card-approval" onclick="switchAdminSection('approval')">Live Visitor Approvals</div>
-                        <div class="admin-nav-card" id="nav-card-reports" onclick="switchAdminSection('reports')">Visitor Reports & Logbook</div>
-                        <div class="admin-nav-card" id="nav-card-config" onclick="switchAdminSection('config')">Enterprise Configuration</div>
-                        <div class="admin-nav-card" id="nav-card-system" onclick="switchAdminSection('system')">System Maintenance & Diagnostics</div>
-                    </div>
-
-                    <!-- SECTION 1: Live Visitor Approvals -->
-                    <div id="admin-sec-approval" class="admin-section-content active-section">
-                        <h3 style="font-size: 18px; margin-bottom: 8px; color: var(--secondary);">Pending Visitor Authorization Requests</h3>
-                        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">Approve or reject incoming visitors seeking entry clearance.</p>
-                        
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>Visitor Name</th>
-                                        <th>Phone</th>
-                                        <th>Status</th>
-                                        <th>Action Controls</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="approval-table-body">
-                                    <tr><td colspan="5" style="text-align: center; color: #64748b;">No pending requests. Waiting for check-ins...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 2: Visitor Reports & Logbook -->
-                    <div id="admin-sec-reports" class="admin-section-content">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-                            <h3 style="font-size: 18px; color: var(--secondary);">Permanent Visitor Logbook & Reports</h3>
-                            <button class="btn" style="width: auto; padding: 10px 20px; font-size: 14px; background: var(--success);" onclick="exportToExcel()">📥 Export Permanent Excel (CSV)</button>
-                        </div>
-
-                        <!-- Multi-Category Filter Bar including Calendar Date Filter -->
-                        <div class="filter-grid">
-                            <input type="text" id="searchInput" placeholder="Search visitor by name or phone..." oninput="renderAdminTables()">
-                            <select id="statusFilter" onchange="renderAdminTables()">
-                                <option value="all">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                                <option value="completed">Completed Pass</option>
-                            </select>
-                            <select id="langFilter" onchange="renderAdminTables()">
-                                <option value="all">All Languages</option>
-                                <option value="en">English (EN)</option>
-                                <option value="ta">Tamil (TA)</option>
-                                <option value="hi">Hindi (HI)</option>
-                                <option value="te">Telugu (TE)</option>
-                                <option value="kn">Kannada (KN)</option>
-                            </select>
-                            <input type="date" id="calendarFilter" onchange="renderAdminTables()" title="Filter by Visit Date">
-                        </div>
-                        <div style="margin-bottom: 16px; text-align: right;">
-                            <button class="action-btn btn-reject" style="padding: 6px 12px; font-size: 11px;" onclick="resetFilters()">Reset Filters</button>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>Visitor Name</th>
-                                        <th>Phone</th>
-                                        <th>Status</th>
-                                        <th>Language</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="report-table-body">
-                                    <tr><td colspan="5" style="text-align: center; color: #64748b;">No logs available.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 3: Enterprise Configuration -->
-                    <div id="admin-sec-config" class="admin-section-content">
-                        <h3 style="font-size: 18px; margin-bottom: 16px; color: var(--secondary);">Enterprise Portal Customization Settings</h3>
-                        <div class="form-group" style="margin-top: 12px;">
-                            <label>Background Image (Max 10 MB)</label>
-                            <input type="file" id="bgImgInput" accept="image/*" onchange="updateBackgroundImage(event)">
-                            <button class="action-btn btn-reject" style="margin-top: 8px;" onclick="removeBackgroundImage()">Reset Background</button>
-                        </div>
-                        
-                        <div class="form-group" style="margin-top: 16px;">
-                            <label>Upload Orientation Video (.mp4 - Max 10 MB)</label>
-                            <input type="file" id="videoFileInput" accept="video/mp4" onchange="updateVideoFile(event)">
-                            <button class="action-btn btn-reject" style="margin-top: 8px;" onclick="removeVideoFile()">Reset Video File</button>
-                        </div>
-
-                        <div class="form-group" style="margin-top: 16px;">
-                            <label>Universal Video Stream Link (YouTube, OneDrive, Google Drive, MP4 URL)</label>
-                            <input type="url" id="videoUrlInput" placeholder="Paste direct stream link here">
-                            <button class="btn" style="padding: 10px; font-size: 13px; margin-top: 8px;" onclick="updateVideoUrl()">Update Video Link</button>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 4: System Maintenance & Diagnostics -->
-                    <div id="admin-sec-system" class="admin-section-content">
-                        <h3 style="font-size: 18px; margin-bottom: 16px; color: var(--secondary);">System Maintenance & Diagnostics</h3>
-                        <p style="font-size: 14px; color: #64748b; margin-bottom: 16px; line-height: 1.5;">Manage network host connections, peer nodes, and clear persistent records if necessary.</p>
-                        <button class="btn" style="background: var(--error); width: auto; padding: 10px 20px; font-size: 14px;" onclick="clearAllRecords()">Clear All Persistent Records</button>
-                    </div>
-                    
-                    <button class="btn" style="background:#475569; margin-top:10px;" onclick="adminLogout()">Lock Security Console</button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-<script>
-    const DEFAULT_VIDEO = "https://www.w3schools.com/html/mov_bbb.mp4";
-    const ADMIN_PASSWORD = "z+";
-    let isAdminAuthenticated = false;
-    let peer = null;
-    let peerConnections = {}; 
-    
-    let visitorRecords = {};
-    try {
-        visitorRecords = JSON.parse(localStorage.getItem('saved_visitor_records') || '{}');
-    } catch(e) {
-        visitorRecords = {};
-    }
-
-    let activeConn = null; 
-    let iframeTimer = null;
-    let currentLang = 'en';
-
-    const translations = {
-        en: {
-            regTitle: "General Safety & Security Induction",
-            regSub: "Connect to the plant desk session code and verify your official credentials.",
-            labelCode: "Desk Session Code (4-Digits)",
-            labelName: "Full Name (As per Government ID)",
-            labelPhone: "Mobile Phone Number",
-            submitReg: "Submit for Security Approval",
-            pendTitle: "Waiting for Security Authorization",
-            pendSub: "Secure connection established with plant safety desk.",
-            pendNote: "Please remain on this screen. Gate clearance updates automatically once verified by the plant security officer.",
-            vidTitle: "Mandatory HSE Safety Orientation Video",
-            vidSub: "Watch the entire industrial safety compliance film to unlock your assessment test.",
-            vidBtnLock: "Watch Video Completely to Unlock Assessment",
-            vidBtnUnlock: "Proceed to Assessment",
-            quizTitle: "HSE Safety & Compliance Assessment",
-            quizSub: "A mandatory 100% compliance score is required to obtain your gate clearance pass.",
-            q1: "1. Are visitor safety badges, closed footwear, and PPE mandatory inside the manufacturing shop floor?",
-            q1Opt1: "Yes, mandatory across all operational zones",
-            q1Opt2: "No, optional for short visits",
-            q2: "2. In case of a fire alarm or emergency evacuation siren, what protocol must be followed?",
-            q2Opt1: "Continue working at your station",
-            q2Opt2: "Immediately follow your assigned escort to the designated assembly point",
-            quizSubmit: "Submit Safety Assessment",
-            certTitle: "INDUSTRIAL ENTRY CLEARANCE CERTIFICATE",
-            certGranted: "Officially Granted To",
-            certPassed: "Passed Enterprise Safety Orientation & Assessment (100% Verified)",
-            printBtn: "Print / Download Official Pass"
-        },
-        ta: {
-            regTitle: "பொதுவான பாதுகாப்பு மற்றும் பாதுகாப்பு அறிமுகம்",
-            regSub: "ஆலை மேஜை அமர்வு குறியீட்டுடன் இணைத்து உங்கள் அதிகாரப்பூர்வ சான்றுகளைச் சரிபார்க்கவும்.",
-            labelCode: "மேஜை அமர்வு குறியீடு (4 இலக்கங்கள்)",
-            labelName: "முழு பெயர் (அரசாங்க அடையாள ஆவணத்தின்படி)",
-            labelPhone: "மொபைல் தொலைபேசி எண்",
-            submitReg: "பாதுகாப்பு ஒப்புதலுக்காக சமர்ப்பிக்கவும்",
-            pendTitle: "பாதுகாப்பு அங்கீகாரத்திற்காக காத்திருக்கிறது",
-            pendSub: "ஆலை பாதுகாப்பு மேஜையுடன் பாதுகாப்பான இணைப்பு நிறுவப்பட்டது.",
-            pendNote: "தயவுசெய்து இந்தத் திரையில் இருக்கவும். ஆலை பாதுகாப்பு அதிகாரி சரிபார்த்தவுடன் கேட் அனுமதி நிலை தானாகவே புதுப்பிக்கப்படும்.",
-            vidTitle: "கட்டாய HSE பாதுகாப்பு நோக்குநிலை காணொளி",
-            vidSub: "மதிப்பீட்டுத் தேர்வைத் திறக்க முழு தொழில்துறை பாதுகாப்பு இணக்கக் காணொளியையும் பார்க்கவும்.",
-            vidBtnLock: "மதிப்பீட்டைத் திறக்க காணொளியை முழுமையாகப் பார்க்கவும்",
-            vidBtnUnlock: "மதிப்பீட்டிற்குச் செல்லவும்",
-            quizTitle: "HSE பாதுகாப்பு மற்றும் இணக்க மதிப்பீடு",
-            quizSub: "உங்கள் கேட் அனுமதிப் சீட்டைப் பெற கட்டாயமான 100% இணக்க மதிப்பெண் தேவை.",
-            q1: "1. உற்பத்தி தளத்திற்குள் பார்வையாளர் பாதுகாப்பு பேட்ஜ்கள், மூடப்பட்ட காலணிகள் மற்றும் PPE கட்டாயமா?",
-            q1Opt1: "ஆம், அனைத்து இயக்க மண்டலங்களிலும் கட்டாயம்",
-            q1Opt2: "இல்லை, குறுகிய வருகைகளுக்கு விருப்பமானது",
-            q2: "2. தீ எச்சரிக்கை அல்லது அவசரகால வெளியேற்றும் சைரன் ஏற்பட்டால், என்ன நெறிமுறையைப் பின்பற்ற வேண்டும்?",
-            q2Opt1: "உங்கள் நிலையத்தில் தொடர்ந்து வேலை செய்யுங்கள்",
-            q2Opt2: "உங்களுக்கு ஒதுக்கப்பட்ட பாதுகாப்புடன் நியமிக்கப்பட்ட கூட்டத்திற்குரிய இடத்திற்கு உடனடியாக செல்லவும்",
-            quizSubmit: "பாதுகாப்பு மதிப்பீட்டை சமர்ப்பிக்கவும்",
-            certTitle: "தொழில்துறை நுழைவு அனுமதிச் சான்றிதழ்",
-            certGranted: "அதிகாரப்பூர்வமாக வழங்கப்பட்டவர்",
-            certPassed: "நிறுவன பாதுகாப்பு நோக்குநிலை மற்றும் மதிப்பீடு தேர்ச்சி (100% சரிபார்க்கப்பட்டது)",
-            printBtn: "அதிகாரப்பூர்வ பாஸை அச்சிடுக / பதிவிறக்கவும்"
-        },
-        hi: {
-            regTitle: "सामान्य सुरक्षा और सुरक्षा इंडक्शन",
-            regSub: "प्लांट डेस्क सत्र कोड से कनेक्ट करें और अपने आधिकारिक विवरण सत्यापित करें।",
-            labelCode: "डेस्क सत्र कोड (4-अंक)",
-            labelName: "पूरा नाम (सरकारी आईडी के अनुसार)",
-            labelPhone: "मोबाइल फोन नंबर",
-            submitReg: "सुरक्षा अनुमोदन के लिए सबमिट करें",
-            pendTitle: "सुरक्षा प्राधिकरण की प्रतीक्षा है",
-            pendSub: "प्लांट सुरक्षा डेस्क के साथ सुरक्षित कनेक्शन स्थापित किया गया।",
-            pendNote: "कृपया इस स्क्रीन पर रहें। प्लांट सुरक्षा अधिकारी द्वारा सत्यापित होने के बाद गेट क्लीयरेंस स्वतः अपडेट हो जाता है।",
-            vidTitle: "अनिवार्य HSE सुरक्षा ओरिएंटेशन वीडियो",
-            vidSub: "अपना मूल्यांकन परीक्षण अनलॉक करने के लिए संपूर्ण औद्योगिक सुरक्षा अनुपालन फिल्म देखें।",
-            vidBtnLock: "मूल्यांकन अनलॉक करने के लिए पूरा वीडियो देखें",
-            vidBtnUnlock: "मूल्यांकन के लिए आगे बढ़ें",
-            quizTitle: "HSE सुरक्षा और अनुपालन मूल्यांकन",
-            quizSub: "अपना गेट क्लीयरेंस पास प्राप्त करने के लिए 100% अनुपालन स्कोर अनिवार्य है।",
-            q1: "1. क्या विनिर्माण शॉप फ्लोर के अंदर विज़िटर सुरक्षा बैज, बंद जूते और पीपीई अनिवार्य हैं?",
-            q1Opt1: "हाँ, सभी परिचालन क्षेत्रों में अनिवार्य",
-            q1Opt2: "नहीं, संक्षिप्त यात्राओं के लिए वैकल्पिक",
-            q2: "2. आग के अलार्म या आपातकालीन निकासी सायरन की स्थिति में, किस प्रोटोकॉल का पालन किया जाना चाहिए?",
-            q2Opt1: "अपने स्टेशन पर काम जारी रखें",
-            q2Opt2: "तुरंत अपने निर्दिष्ट एस्कॉर्ट का पालन करें और निर्धारित असेंबली पॉइंट पर जाएं",
-            quizSubmit: "सुरक्षा मूल्यांकन जमा करें",
-            certTitle: "औद्योगिक प्रवेश निकासी प्रमाण पत्र",
-            certGranted: "आधिकारिक तौर पर प्रदान किया गया",
-            certPassed: "एंटरप्राइज़ सुरक्षा ओरिएंटेशन और मूल्यांकन उत्तीर्ण (100% सत्यापित)",
-            printBtn: "आधिकारिक पास प्रिंट / डाउनलोड करें"
-        },
-        te: {
-            regTitle: "సాధారణ భద్రత మరియు సెక్యూరిటీ ఇండక్షన్",
-            regSub: "ప్లాంట్ డెస్క్ సెషన్ కోడ్‌కి కనెక్ట్ చేసి మీ అధికారిక ఆధారాలను ధృవీకరించండి.",
-            labelCode: "డెస్క్ సెషన్ కోడ్ (4-అంకెలు)",
-            labelName: "పూర్తి పేరు (ప్రభుత్వ ఐడి ప్రకారం)",
-            labelPhone: "మొబైల్ ఫోన్ నంబర్",
-            submitReg: "సెక్యూరిటీ ఆమోదం కోసం సమర్పించండి",
-            pendTitle: "సెక్యూరిటీ అనుమతి కోసం వేచి ఉంది",
-            pendSub: "ప్లాంట్ సేఫ్టీ డెస్క్‌తో సురక్షిత కనెక్షన్ ఏర్పాటు చేయబడింది.",
-            pendNote: "దయచేసి ఈ స్క్రీన్‌పై ఉండండి. ప్లాంట్ సెక్యూరిటీ ఆఫీసర్ ధృవీకరించిన తర్వాత గేట్ క్లియరెన్స్ స్వయంచాలకంగా అప్‌డేట్ అవుతుంది.",
-            vidTitle: "తప్పనిసరి HSE భద్రతా ఓరియంటేషన్ వీడియో",
-            vidSub: "మీ అసెస్‌మెంట్ టెస్ట్‌ను అన్‌లాక్ చేయడానికి మొత్తం పారిశ్రామిక భద్రతా సమ్మతి ఫిల్మ్‌ని చూడండి.",
-            vidBtnLock: "అసెస్‌మెంట్‌ను అన్‌లాక్ చేయడానికి వీడియోను పూర్తిగా చూడండి",
-            vidBtnUnlock: "అసెస్‌మెంట్‌కి వెళ్లండి",
-            quizTitle: "HSE భద్రత & సమ్మతి అసెస్‌మెంట్",
-            quizSub: "మీ గేట్ క్లియరెన్స్ పాస్‌ను పొందడానికి 100% సమ్మతి స్కోర్ తప్పనిసరి.",
-            q1: "1. తయారీ షాప్ ఫ్లోర్ లోపల విజిటర్ సేఫ్టీ బ్యాడ్జ్‌లు, మూసివున్న బూట్లు మరియు PPE తప్పనిసరా?",
-            q1Opt1: "అవును, అన్ని ఆపరేషనల్ జోన్లలో తప్పనిసరి",
-            q1Opt2: "కాదు, చిన్న సందర్శనలకు ఐచ్ఛికం",
-            q2: "2. అగ్ని ప్రమాద అలారం లేదా అత్యవసర ఖాళీ సైరన్ సంభవించినప్పుడు, ఏ ప్రోటోకాల్ పాటించాలి?",
-            q2Opt1: "మీ స్టేషన్‌లో పని చేయడం కొనసాగించండి",
-            q2Opt2: "వెంటనే మీ కేటాయించిన ఎస్కార్ట్‌తో నిర్దేశిత అసెంబ్లీ పాయింట్‌కి వెళ్లండి",
-            quizSubmit: "భద్రతా అసెస్‌మెంట్‌ను సమర్పించండి",
-            certTitle: "పారిశ్రామిక ప్రవేశ క్లియరెన్స్ సర్టిఫికేట్",
-            certGranted: "అధికారికంగా అందించబడిన వారు",
-            certPassed: "ఎంటర్‌ప్రైజ్ సేఫ్టీ ఓరియంటేషన్ & అసెస్‌మెంట్ ఉత్తీర్ణత (100% ధృవీకరించబడింది)",
-            printBtn: "అధికారిక పాస్‌ను ప్రింట్ / డౌన్‌లోడ్ చేయండి"
-        },
-        kn: {
-            regTitle: "ಸಾಮಾನ್ಯ ಸುರಕ್ಷತೆ ಮತ್ತು ಭದ್ರತಾ ಇಂಡಕ್ಷನ್",
-            regSub: "ಪ್ಲಾಂಟ್ ಡೆಸ್ಕ್ ಸೆಶನ್ ಕೋಡ್‌ಗೆ ಸಂಪರ್ಕಿಸಿ ಮತ್ತು ನಿಮ್ಮ ಅಧಿಕೃತ ఆధారಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.",
-            labelCode: "ಡೆಸ್ಕ್ ಸೆಶನ್ ಕೋಡ್ (4-ಅಂಕಿಗಳು)",
-            labelName: "ಪೂರ್ಣ ಹೆಸರು (ಸರ್ಕಾರಿ ಐಡಿ ಪ್ರಕಾರ)",
-            labelPhone: "ಮೊಬೈಲ್ ಫೋನ್ ಸಂಖ್ಯೆ",
-            submitReg: "ಭದ್ರತಾ ಅನುಮೋದನೆಗಾಗಿ ಸಲ್ಲಿಸಿ",
-            pendTitle: "ಭದ್ರತಾ ಅಧಿಕಾರಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ",
-            pendSub: "ಪ್ಲಾಂಟ್ ಸುರಕ್ಷತಾ ಡೆಸ್ಕ್‌ನೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಸಂಪರ್ಕವನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿದೆ.",
-            pendNote: "ದಯವಿಟ್ಟು ಈ ಪರದೆಯ ಮೇಲೆ ಇರಿ. ಪ್ಲಾಂಟ್ ಭದ್ರತಾ ಅಧಿಕಾರಿಯಿಂದ ಪರಿಶೀಲಿಸಿದ ನಂತರ ಗೇಟ್ ಕ್ಲಿಯರೆನ್ಸ್ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನವೀಕರಿಸಲ್ಪಡುತ್ತದೆ.",
-            vidTitle: "ಕಡ್ಡಾಯ HSE ಸುರಕ್ಷತಾ ದೃಷ್ಟಿಕೋನ ವೀಡಿಯೊ",
-            vidSub: "ನಿಮ್ಮ ಮೌಲ್ಯಮಾಪನ ಪರೀಕ್ಷೆಯನ್ನು ಅನ್ಲಾಕ್ ಮಾಡಲು ಸಂಪೂರ್ಣ ಕೈಗಾರಿಕಾ ಸುರಕ್ಷತಾ ಅನುಸರಣೆ ವೀಡಿಯೊವನ್ನು ವೀಕ್ಷಿಸಿ.",
-            vidBtnLock: "ಮೌಲ್ಯಮಾಪನ ಅನ್ಲಾಕ್ ಮಾಡಲು ವೀಡಿಯೊವನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ವೀಕ್ಷಿಸಿ",
-            vidBtnUnlock: "ಮೌಲ್ಯಮಾಪನಕ್ಕೆ ಮುಂದುವರಿಯಿರಿ",
-            quizTitle: "HSE ಸುರಕ್ಷತೆ ಮತ್ತು ಅನುಸರಣೆ ಮೌಲ್ಯಮಾಪನ",
-            quizSub: "ನಿಮ್ಮ ಗೇಟ್ ಕ್ಲಿಯರೆನ್ಸ್ ಪಾಸ್ ಪಡೆಯಲು 100% ಅನುಸರಣೆ ಸ್ಕೋರ್ ಕಡ್ಡಾಯವಾಗಿದೆ.",
-            q1: "1. ಉತ್ಪಾದನಾ ಅಂಗಡಿಯೊಳಗೆ ಸಂದರ್ಶಕ ಸುರಕ್ಷತಾ ಬ್ಯಾಡ್ಜ್‌ಗಳು, ಮುಚ್ಚಿದ ಪಾದರಕ್ಷೆಗಳು ಮತ್ತು PPE ಕಡ್ಡಾಯವೇ?",
-            q1Opt1: "ಹೌದು, ಎಲ್ಲಾ ಕಾರ್ಯಚರಣೆಯ ವಲಯಗಳಲ್ಲಿ ಕಡ್ಡಾಯ",
-            q1Opt2: "ಇಲ್ಲ, ಸಂಕ್ಷಿಪ್ತ ಭೇಟಿಗಳಿಗೆ ಐಚ್ಛಿಕ",
-            q2: "2. ಬೆಂಕಿ ಅಲಾರಮ್ ಅಥವಾ ತುರ್ತು ಸ್ಥಳಾಂತರಿಸುವ ಸೈರನ್ ಸಂದರ್ಭದಲ್ಲಿ, ಯಾವ ಪ್ರೋಟೋಕಾಲ್ ಅನ್ನು ಅನುಸರಿಸಬೇಕು?",
-            q2Opt1: "ನಿಮ್ಮ ಸ್ಟೇಷನ್‌ನಲ್ಲಿ ಕೆಲಸ ಮುಂದುವರಿಸಿ",
-            q2Opt2: "ತಕ್ಷಣವೇ ನಿಮ್ಮ ನಿಯೋಜಿತ ಸಹಚರರನ್ನು ಅನುಸರಿಸಿ ಗೊತ್ತುಪಡಿಸಿದ ಅಸೆಂಬ್ಲಿ ಸ್ಥಳಕ್ಕೆ ಹೋಗಿ",
-            quizSubmit: "ಭದ್ರತಾ ಮೌಲ್ಯಮಾಪನ ಸಲ್ಲಿಸಿ",
-            certTitle: "ಕೈಗಾರಿಕಾ ಪ್ರವೇಶ ಕ್ಲಿಯರೆನ್ಸ್ ಪ್ರಮಾಣಪತ್ರ",
-            certGranted: "ಅಧಿಕೃತವಾಗಿ ನೀಡಲಾಗಿದೆ",
-            certPassed: "ಎಂಟರ್‌ಪ್ರೈಜ್ ಸುರಕ್ಷತಾ ದೃಷ್ಟಿಕೋನ ಮತ್ತು ಮೌಲ್ಯಮಾಪನ ಪಾಸ್ (100% ಪರಿಶೀಲಿಸಲಾಗಿದೆ)",
-            printBtn: "ಪ್ರಮಾಣಪತ್ರ ಮುದ್ರಿಸಿ / ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ"
-        }
-    };
-
-    function changeLanguage(lang) {
-        currentLang = lang;
-        const t = translations[lang] || translations['en'];
-        
-        document.getElementById('txt-reg-title').innerText = t.regTitle;
-        document.getElementById('txt-reg-sub').innerText = t.regSub;
-        document.getElementById('txt-label-code').innerText = t.labelCode;
-        document.getElementById('txt-label-name').innerText = t.labelName;
-        document.getElementById('txt-label-phone').innerText = t.labelPhone;
-        document.getElementById('submitRegBtn').innerText = t.submitReg;
-
-        document.getElementById('txt-pend-title').innerText = t.pendTitle;
-        document.getElementById('txt-pend-sub').innerText = t.pendSub;
-        document.getElementById('txt-pend-note').innerText = t.pendNote;
-
-        document.getElementById('txt-vid-title').innerText = t.vidTitle;
-        document.getElementById('videoSubtext').innerText = t.vidSub;
-
-        document.getElementById('txt-quiz-title').innerText = t.quizTitle;
-        document.getElementById('txt-quiz-sub').innerText = t.quizSub;
-        document.getElementById('txt-q1').innerText = t.q1;
-        document.getElementById('txt-q1-opt1').innerText = t.q1Opt1;
-        document.getElementById('txt-q1-opt2').innerText = t.q1Opt2;
-        document.getElementById('txt-q2').innerText = t.q2;
-        document.getElementById('txt-q2-opt1').innerText = t.q2Opt1;
-        document.getElementById('txt-q2-opt2').innerText = t.q2Opt2;
-        document.getElementById('txt-quiz-submit').innerText = t.quizSubmit;
-
-        document.getElementById('txt-cert-title').innerText = t.certTitle;
-        document.getElementById('txt-cert-granted').innerText = t.certGranted;
-        document.getElementById('txt-cert-passed').innerText = t.certPassed;
-        document.getElementById('txt-print-btn').innerText = t.printBtn;
-    }
-
-    let currentVideoUrl = localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || DEFAULT_VIDEO;
-
-    const peerConfig = {
-        config: {
-            'iceServers': [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        },
-        debug: 1
-    };
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedBg = localStorage.getItem('saved_bg_image');
-        if (savedBg) {
-            document.body.style.backgroundImage = `url('${savedBg}')`;
-        }
-
-        setVideoSource(currentVideoUrl);
-        const videoInput = document.getElementById('videoUrlInput');
-        if (videoInput && !localStorage.getItem('saved_video_file')) {
-            videoInput.value = localStorage.getItem('saved_video_url') || '';
-        }
-        renderAdminTables();
-    });
-
-    function switchView(viewName) {
-        document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-
-        if (viewName === 'visitor') {
-            document.getElementById('view-visitor').classList.add('active');
-            document.getElementById('tab-visitor').classList.add('active');
-        } else {
-            document.getElementById('view-admin').classList.add('active');
-            document.getElementById('tab-admin').classList.add('active');
-            if (isAdminAuthenticated) {
-                renderAdminTables();
-            }
-        }
-    }
-
-    function switchAdminSection(sectionKey) {
-        document.querySelectorAll('.admin-nav-card').forEach(c => c.classList.remove('active-tab'));
-        document.querySelectorAll('.admin-section-content').forEach(s => s.classList.remove('active-section'));
-
-        const cardElem = document.getElementById('nav-card-' + sectionKey);
-        const secElem = document.getElementById('admin-sec-' + sectionKey);
-
-        if(cardElem) cardElem.classList.add('active-tab');
-        if(secElem) secElem.classList.add('active-section');
-    }
-
-    function verifyAdminPassword() {
-        const input = document.getElementById('adminPass').value;
-        const err = document.getElementById('admin-pass-err');
-        
-        if (input === ADMIN_PASSWORD) {
-            isAdminAuthenticated = true;
-            err.style.display = 'none';
-            document.getElementById('admin-login-sec').style.display = 'none';
-            document.getElementById('admin-dashboard-sec').style.display = 'block';
-            initAdminPeerHost();
-            renderAdminTables();
-        } else {
-            err.style.display = 'block';
-        }
-    }
-
-    function adminLogout() {
-        isAdminAuthenticated = false;
-        if(peer) {
-            try { peer.destroy(); } catch(e) {}
-        }
-        document.getElementById('adminPass').value = '';
-        document.getElementById('admin-login-sec').style.display = 'block';
-        document.getElementById('admin-dashboard-sec').style.display = 'none';
-        switchView('visitor');
-    }
-
-    function showStep(stepId) {
-        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(stepId).classList.add('active');
-        
-        if (stepId !== 'step-video' && iframeTimer) {
-            clearTimeout(iframeTimer);
-            iframeTimer = null;
-        }
-    }
-
-    function updateBackgroundImage(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const maxMB = 10;
-        if (file.size > maxMB * 1024 * 1024) {
-            alert(`File size exceeds ${maxMB} MB. Please upload a smaller image.`);
-            e.target.value = "";
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const maxDimension = 1920; 
-                let width = img.width;
-                let height = img.height;
-
-                if (width > maxDimension || height > maxDimension) {
-                    if (width > height) {
-                        height = Math.round((height * maxDimension) / width);
-                        width = maxDimension;
-                    } else {
-                        width = Math.round((width * maxDimension) / height);
-                        height = maxDimension;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-
-                try {
-                    localStorage.setItem('saved_bg_image', compressedDataUrl);
-                    document.body.style.backgroundImage = `url('${compressedDataUrl}')`;
-                    broadcastConfig({ bgImage: compressedDataUrl });
-                } catch(err) {
-                    alert("Unable to save background image to storage.");
-                }
-            };
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function removeBackgroundImage() {
-        localStorage.removeItem('saved_bg_image');
-        document.body.style.backgroundImage = 'none';
-        document.getElementById('bgImgInput').value = "";
-        broadcastConfig({ bgImage: '' });
-    }
-
-    function updateVideoFile(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const maxVideoMB = 10;
-        if (file.size > maxVideoMB * 1024 * 1024) {
-            alert(`Video file is too large! Please upload an MP4 file under ${maxVideoMB} MB.`);
-            e.target.value = "";
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const videoBase64 = event.target.result;
-            try {
-                localStorage.removeItem('saved_video_url');
-                localStorage.setItem('saved_video_file', videoBase64);
-                currentVideoUrl = videoBase64;
-                setVideoSource(videoBase64);
-                broadcastConfig({ videoUrl: videoBase64 });
-                alert("Video file successfully saved to persistent enterprise storage!");
-            } catch(err) {
-                alert("Storage error. Browser storage limit reached.");
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function removeVideoFile() {
-        localStorage.removeItem('saved_video_file');
-        localStorage.removeItem('saved_video_url');
-        document.getElementById('videoFileInput').value = "";
-        document.getElementById('videoUrlInput').value = "";
-        currentVideoUrl = DEFAULT_VIDEO;
-        setVideoSource(DEFAULT_VIDEO);
-        broadcastConfig({ videoUrl: DEFAULT_VIDEO });
-        alert("Video reset to default.");
-    }
-
-    function parseUniversalVideoUrl(url) {
-        url = url.trim();
-        if (url.includes('youtube.com/watch?v=')) {
-            const videoId = url.split('v=')[1]?.split('&')[0];
-            return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
-        } else if (url.includes('youtu.be/')) {
-            const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-            return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
-        }
-        if (url.includes('1drv.ms') || url.includes('sharepoint.com')) {
-            url = url.replace('redir?', 'download?').replace(':u:/', ':v:/');
-            if (!url.includes('download=1')) {
-                url += (url.includes('?') ? '&' : '?') + 'download=1';
-            }
-        }
-        return url;
-    }
-
-    function updateVideoUrl() {
-        let inputUrl = document.getElementById('videoUrlInput').value.trim();
-        if (!inputUrl) {
-            inputUrl = DEFAULT_VIDEO;
-        }
-
-        localStorage.removeItem('saved_video_file');
-        currentVideoUrl = inputUrl;
-        localStorage.setItem('saved_video_url', inputUrl);
-        setVideoSource(inputUrl);
-        broadcastConfig({ videoUrl: inputUrl });
-        alert("Video stream link updated successfully!");
-    }
-
-    function unlockVideoNextButton() {
-        const videoNextBtn = document.getElementById('videoNextBtn');
-        const videoSubtext = document.getElementById('videoSubtext');
-        const t = translations[currentLang] || translations['en'];
-        if(videoNextBtn) {
-            videoNextBtn.disabled = false;
-            videoNextBtn.style.background = "var(--success)";
-            videoNextBtn.textContent = t.vidBtnUnlock;
-        }
-        if(videoSubtext) {
-            videoSubtext.textContent = t.vidSub;
-        }
-    }
-
-    function setVideoSource(url) {
-        const nativeWrapper = document.getElementById('nativeVideoWrapper');
-        const iframeWrapper = document.getElementById('iframeVideoWrapper');
-        const player = document.getElementById('orientationVideo');
-        const source = document.getElementById('videoSource');
-        const iframe = document.getElementById('videoIframe');
-        const videoNextBtn = document.getElementById('videoNextBtn');
-        const videoSubtext = document.getElementById('videoSubtext');
-        const t = translations[currentLang] || translations['en'];
-
-        if(videoNextBtn) {
-            videoNextBtn.disabled = true;
-            videoNextBtn.style.background = "#cbd5e1";
-            videoNextBtn.textContent = t.vidBtnLock;
-        }
-        if(videoSubtext) {
-            videoSubtext.textContent = t.vidSub;
-        }
-
-        if (iframeTimer) {
-            clearTimeout(iframeTimer);
-            iframeTimer = null;
-        }
-
-        if (url.includes('youtube.com/embed') || url.includes('youtu.be') || url.includes('drive.google.com/file/d/')) {
-            if(nativeWrapper) nativeWrapper.style.display = 'none';
-            if(iframeWrapper) iframeWrapper.style.display = 'block';
-            if(player) player.pause();
-            if(iframe) iframe.src = parseUniversalVideoUrl(url);
-
-            iframeTimer = setTimeout(() => {
-                unlockVideoNextButton();
-            }, 30000);
-        } else {
-            if(iframeWrapper) iframeWrapper.style.display = 'none';
-            if(nativeWrapper) nativeWrapper.style.display = 'block';
-            if(iframe) iframe.src = '';
+    <script>
+        // --- Page Navigation Control ---
+        function goToPage(pageNum) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + pageNum).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            let formattedUrl = parseUniversalVideoUrl(url);
-            if(source) source.src = formattedUrl;
-            if(player) player.load();
-        }
-    }
-
-    const videoPlayer = document.getElementById('orientationVideo');
-    if(videoPlayer) {
-        videoPlayer.addEventListener('ended', () => {
-            unlockVideoNextButton();
-        });
-    }
-
-    const videoNextBtnElem = document.getElementById('videoNextBtn');
-    if(videoNextBtnElem) {
-        videoNextBtnElem.addEventListener('click', () => {
-            if (!videoNextBtnElem.disabled) {
-                showStep('step-quiz');
+            if (pageNum === 1) {
+                setTimeout(initPage1ScratchCard, 50);
             }
-        });
-    }
-
-    function broadcastConfig(config) {
-        Object.values(peerConnections).forEach(conn => {
-            try {
-                conn.send({ type: 'config_update', config: config });
-            } catch(e) {}
-        });
-    }
-
-    function initAdminPeerHost() {
-        const code = Math.floor(1000 + Math.random() * 9000).toString(); 
-        const codeDisplay = document.getElementById('desk-code-display');
-        if(codeDisplay) {
-            codeDisplay.innerText = code;
         }
 
-        try {
-            if(peer) peer.destroy();
-        } catch(e) {}
-
-        peer = new Peer('company_admin_desk_' + code, peerConfig);
-
-        peer.on('connection', (conn) => {
-            conn.on('data', (data) => {
-                if (data.type === 'register') {
-                    peerConnections[data.visitor.id] = conn;
-                    visitorRecords[data.visitor.id] = data.visitor;
-                    saveVisitorRecords();
-                    renderAdminTables();
-                    
-                    try {
-                        conn.send({
-                            type: 'config_update',
-                            config: { 
-                                bgImage: localStorage.getItem('saved_bg_image') || '',
-                                videoUrl: localStorage.getItem('saved_video_file') || localStorage.getItem('saved_video_url') || currentVideoUrl 
-                            }
-                        });
-                    } catch(e) {}
-                } else if (data.type === 'completed') {
-                    if (visitorRecords[data.visitorId]) {
-                        visitorRecords[data.visitorId].status = 'completed';
-                        saveVisitorRecords();
-                        renderAdminTables();
-                    }
+        // --- Secret Trigger: Press '4' four times to Toggle Admin Section ---
+        let pressCount = 0;
+        document.addEventListener('keydown', function(event) {
+            if (event.key === '4') {
+                pressCount++;
+                if (pressCount === 4) {
+                    const adminSec = document.getElementById('adminSection');
+                    adminSec.style.display = adminSec.style.display === 'block' ? 'none' : 'block';
+                    if (adminSec.style.display === 'block') adminSec.scrollIntoView({ behavior: 'smooth' });
+                    pressCount = 0;
                 }
-            });
-        });
-    }
-
-    const visitorForm = document.getElementById('visitor-form');
-    if(visitorForm) {
-        visitorForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const code = document.getElementById('adminCodeInput').value.trim();
-            const name = document.getElementById('fullName').value.trim();
-            const phone = document.getElementById('phoneNo').value.trim();
-            const connErr = document.getElementById('conn-error');
-            const submitBtn = document.getElementById('submitRegBtn');
-
-            if(connErr) connErr.style.display = 'none';
-
-            if (!code || !name || !phone) return;
-
-            if(submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = "Connecting to Desk...";
-            }
-
-            const visitorPeer = new Peer(undefined, peerConfig);
-
-            visitorPeer.on('open', () => {
-                const visitorId = 'vis_' + Date.now();
-                const now = new Date();
-                const formattedDate = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                activeConn = visitorPeer.connect('company_admin_desk_' + code);
-
-                activeConn.on('open', () => {
-                    if(submitBtn) {
-                        submitBtn.disabled = false;
-                        const t = translations[currentLang] || translations['en'];
-                        submitBtn.textContent = t.submitReg;
-                    }
-
-                    const newVisitor = {
-                        id: visitorId,
-                        name: name,
-                        phone: phone,
-                        status: 'pending',
-                        dateTime: formattedDate,
-                        language: currentLang
-                    };
-
-                    visitorRecords[visitorId] = newVisitor;
-                    saveVisitorRecords();
-
-                    activeConn.send({
-                        type: 'register',
-                        visitor: newVisitor
-                    });
-
-                    showStep('step-pending');
-                });
-
-                activeConn.on('data', (data) => {
-                    if (data.type === 'status_update') {
-                        if (data.status === 'approved') {
-                            showStep('step-video');
-                        } else if (data.status === 'rejected') {
-                            const appStatus = document.getElementById('approval-status');
-                            if(appStatus) {
-                                appStatus.innerText = "ACCESS REJECTED BY SECURITY ADMIN";
-                                appStatus.style.color = "var(--error)";
-                            }
-                        }
-                    } else if (data.type === 'config_update') {
-                        if (data.config.bgImage !== undefined) {
-                            document.body.style.backgroundImage = data.config.bgImage ? `url('${data.config.bgImage}')` : 'none';
-                        }
-                        if (data.config.videoUrl) {
-                            setVideoSource(data.config.videoUrl);
-                        }
-                    }
-                });
-
-                setTimeout(() => {
-                    if (!activeConn || !activeConn.open) {
-                        if(submitBtn) {
-                            submitBtn.disabled = false;
-                            const t = translations[currentLang] || translations['en'];
-                            submitBtn.textContent = t.submitReg;
-                        }
-                        if(connErr) connErr.style.display = 'block';
-                    }
-                }, 6000);
-            });
-
-            visitorPeer.on('error', () => { 
-                if(submitBtn) {
-                    submitBtn.disabled = false;
-                    const t = translations[currentLang] || translations['en'];
-                    submitBtn.textContent = t.submitReg;
-                }
-                if(connErr) connErr.style.display = 'block'; 
-            });
-        });
-    }
-
-    const quizForm = document.getElementById('quiz-form');
-    if(quizForm) {
-        quizForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const answers = { q1: 'yes', q2: 'b' };
-            const formData = new FormData(e.target);
-            let score = 0;
-            let total = Object.keys(answers).length;
-
-            for (let [q, a] of Object.entries(answers)) {
-                if (formData.get(q) === a) score++;
-            }
-
-            if (score === total) {
-                const now = new Date();
-                const certName = document.getElementById('cert-name');
-                const certPhone = document.getElementById('cert-phone');
-                const certDate = document.getElementById('cert-date');
-                const fullNameVal = document.getElementById('fullName').value;
-                const phoneNoVal = document.getElementById('phoneNo').value;
-
-                if(certName) certName.innerText = fullNameVal;
-                if(certPhone) certPhone.innerText = phoneNoVal;
-                if(certDate) certDate.innerText = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-
-                for (let id in visitorRecords) {
-                    if (visitorRecords[id].phone === phoneNoVal && visitorRecords[id].name === fullNameVal) {
-                        visitorRecords[id].status = 'completed';
-                        saveVisitorRecords();
-                        break;
-                    }
-                }
-
-                if (activeConn) {
-                    try { activeConn.send({ type: 'completed' }); } catch(e) {}
-                }
-
-                showStep('step-certificate');
             } else {
-                const err = document.getElementById('quiz-error');
-                if(err) {
-                    err.style.display = 'block';
-                    err.innerText = `You scored ${score}/${total}. A 100% score is strictly required to pass. Please review safety guidelines and retry.`;
-                }
+                pressCount = 0; 
             }
         });
-    }
 
-    function setVisitorStatus(id, newStatus) {
-        if (visitorRecords[id]) {
-            visitorRecords[id].status = newStatus;
-            saveVisitorRecords();
-            
-            if (peerConnections[id]) {
-                try {
-                    peerConnections[id].send({
-                        type: 'status_update',
-                        status: newStatus
-                    });
-                } catch(e) {}
+        // --- IndexedDB Setup for Permanent Storage ---
+        let db;
+        const dbRequest = indexedDB.open("PartyAppDB", 3);
+
+        dbRequest.onupgradeneeded = function(event) {
+            db = event.target.result;
+            if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos");
+            if (!db.objectStoreNames.contains("gatepass")) db.createObjectStore("gatepass");
+        };
+
+        dbRequest.onsuccess = function(event) {
+            db = event.target.result;
+            loadSavedVideo();
+            loadSavedGatePass();
+            setTimeout(initPage1ScratchCard, 100);
+        };
+
+        // --- Video Storage Handlers ---
+        function loadSavedVideo() {
+            if (!db) return;
+            const transaction = db.transaction(["videos"], "readonly");
+            const request = transaction.objectStore("videos").get("customBgVideo");
+            request.onsuccess = function(event) {
+                if (event.target.result) playVideoFromBlob(event.target.result);
+            };
+        }
+
+        function handleVideoUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const transaction = db.transaction(["videos"], "readwrite");
+                transaction.objectStore("videos").put(file, "customBgVideo");
+                transaction.oncomplete = () => { playVideoFromBlob(file); alert('Background video saved!'); };
             }
-            renderAdminTables();
-        }
-    }
-
-    function saveVisitorRecords() {
-        try {
-            localStorage.setItem('saved_visitor_records', JSON.stringify(visitorRecords));
-        } catch(e) {}
-    }
-
-    function clearAllRecords() {
-        if (confirm("Are you sure you want to clear all persistent visitor records? This action cannot be undone.")) {
-            visitorRecords = {};
-            localStorage.removeItem('saved_visitor_records');
-            renderAdminTables();
-            alert("All records successfully cleared.");
-        }
-    }
-
-    function resetFilters() {
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const langFilter = document.getElementById('langFilter');
-        const calendarFilter = document.getElementById('calendarFilter');
-
-        if(searchInput) searchInput.value = '';
-        if(statusFilter) statusFilter.value = 'all';
-        if(langFilter) langFilter.value = 'all';
-        if(calendarFilter) calendarFilter.value = '';
-
-        renderAdminTables();
-    }
-
-    function exportToExcel() {
-        const keys = Object.keys(visitorRecords);
-        if (keys.length === 0) {
-            alert("No visitor logs available to export.");
-            return;
         }
 
-        let csvContent = "data:text/csv;charset=utf-8,Timestamp,Visitor Name,Phone Number,Status,Language\r\n";
-
-        keys.forEach(id => {
-            const item = visitorRecords[id];
-            const row = [
-                `"${item.dateTime || ''}"`,
-                `"${item.name || ''}"`,
-                `"${item.phone || ''}"`,
-                `"${item.status || ''}"`,
-                `"${item.language || 'en'}"`
-            ].join(",");
-            csvContent += row + "\r\n";
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `mplastics_enterprise_visitor_log_${new Date().toISOString().slice(0,10)}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    function renderAdminTables() {
-        renderApprovalTable();
-        renderReportTable();
-    }
-
-    function renderApprovalTable() {
-        const tbody = document.getElementById('approval-table-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-
-        const keys = Object.keys(visitorRecords).reverse();
-        const pendingKeys = keys.filter(id => visitorRecords[id].status === 'pending');
-
-        if (pendingKeys.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b;">No pending authorization requests.</td></tr>';
-            return;
+        function playVideoFromBlob(blob) {
+            const fileURL = URL.createObjectURL(blob);
+            const bgVideoElement = document.getElementById('bgVideoElement');
+            document.getElementById('videoSource').src = fileURL;
+            bgVideoElement.load();
+            bgVideoElement.play().catch(() => {});
         }
 
-        pendingKeys.forEach(id => {
-            const item = visitorRecords[id];
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.dateTime || ''}</td>
-                <td><strong>${item.name || ''}</strong></td>
-                <td>${item.phone || ''}</td>
-                <td><span class="badge badge-pending">PENDING</span></td>
-                <td>
-                    <button class="action-btn btn-approve" onclick="setVisitorStatus('${id}', 'approved')">Approve</button>
-                    <button class="action-btn btn-reject" onclick="setVisitorStatus('${id}', 'rejected')">Reject</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
+        function removeBgVideo() {
+            if (!db) return;
+            const transaction = db.transaction(["videos"], "readwrite");
+            transaction.objectStore("videos").delete("customBgVideo");
+            transaction.oncomplete = () => {
+                document.getElementById('videoSource').src = "https://assets.mixkit.co/videos/preview/mixkit-party-crowd-of-people-dancing-in-a-club-41618-large.mp4";
+                document.getElementById('bgVideoElement').load();
+                document.getElementById('bgVideoElement').play();
+                document.getElementById('bgVideoFileInput').value = '';
+                alert('Reset background video.');
+            };
+        }
 
-    function renderReportTable() {
-        const tbody = document.getElementById('report-table-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        // --- Page 1 Scratch Card Setup (Auto-transitions to Page 2 when scratched) ---
+        function initPage1ScratchCard() {
+            const canvas = document.getElementById('page1ScratchCanvas');
+            if (!canvas || canvas.offsetWidth === 0) return;
+            const ctx = canvas.getContext('2d');
+            let popperDone = false;
 
-        const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
-        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-        const langFilter = document.getElementById('langFilter')?.value || 'all';
-        const calendarFilter = document.getElementById('calendarFilter')?.value || '';
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
 
-        const keys = Object.keys(visitorRecords).reverse();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = '#6b7280';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 15px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Scratch Here', canvas.width / 2, canvas.height / 2);
 
-        let totalCount = keys.length;
-        let pendingCount = 0;
-        let clearedCount = 0;
+            let isDrawing = false;
 
-        keys.forEach(id => {
-            const item = visitorRecords[id];
-            if (item.status === 'pending') pendingCount++;
-            if (item.status === 'approved' || item.status === 'completed') clearedCount++;
-        });
+            function getMousePos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
 
-        const statTotal = document.getElementById('stat-total');
-        const statPending = document.getElementById('stat-pending');
-        const statCleared = document.getElementById('stat-cleared');
+            function scratch(e) {
+                if (!isDrawing) return;
+                const pos = getMousePos(e);
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
+                ctx.fill();
 
-        if(statTotal) statTotal.innerText = totalCount;
-        if(statPending) statPending.innerText = pendingCount;
-        if(statCleared) statCleared.innerText = clearedCount;
-
-        const filteredKeys = keys.filter(id => {
-            const item = visitorRecords[id];
-            const nameMatch = (item.name || '').toLowerCase().includes(searchQuery);
-            const phoneMatch = (item.phone || '').includes(searchQuery);
-            const matchesSearch = nameMatch || phoneMatch;
-
-            const matchesStatus = (statusFilter === 'all') || (item.status === statusFilter);
-            const matchesLang = (langFilter === 'all') || ((item.language || 'en') === langFilter);
-
-            let matchesCalendar = true;
-            if (calendarFilter && item.dateTime) {
-                try {
-                    const parts = item.dateTime.split(' ')[0].split('/');
-                    if (parts.length === 3) {
-                        const month = parts[0].padStart(2, '0');
-                        const day = parts[1].padStart(2, '0');
-                        const year = parts[2];
-                        const itemDateFormatted = `${year}-${month}-${day}`;
-                        matchesCalendar = (itemDateFormatted === calendarFilter);
+                if (!popperDone) {
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    let cleared = 0;
+                    for (let i = 3; i < imgData.data.length; i += 4) {
+                        if (imgData.data[i] === 0) cleared++;
                     }
-                } catch(e) {
-                    matchesCalendar = true;
+                    if (cleared / (imgData.data.length / 4) > 0.40) {
+                        popperDone = true;
+                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+                        setTimeout(() => {
+                            goToPage(2);
+                        }, 400);
+                    }
                 }
             }
 
-            return matchesSearch && matchesStatus && matchesLang && matchesCalendar;
-        });
+            canvas.onmousedown = null;
+            canvas.onmousemove = null;
+            canvas.ontouchstart = null;
+            canvas.ontouchmove = null;
 
-        if (filteredKeys.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b;">No matching visitor records found in reports.</td></tr>';
-            return;
+            canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
+            canvas.addEventListener('mousemove', scratch);
+            window.addEventListener('mouseup', () => { isDrawing = false; });
+
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); e.preventDefault(); }, { passive: false });
+            canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); }, { passive: false });
+            canvas.addEventListener('touchend', () => { isDrawing = false; });
         }
 
-        filteredKeys.forEach(id => {
-            const item = visitorRecords[id];
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.dateTime || ''}</td>
-                <td><strong>${item.name || ''}</strong></td>
-                <td>${item.phone || ''}</td>
-                <td><span class="badge badge-${item.status || 'pending'}">${item.status || 'pending'}</span></td>
-                <td><span style="text-transform: uppercase; font-weight: 700; color: #475569;">${item.language || 'en'}</span></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-</script>
+        // --- Gate Pass Handlers (Plain Display without Scratch) ---
+        function loadSavedGatePass() {
+            if (!db) return;
+            const transaction = db.transaction(["gatepass"], "readonly");
+            const request = transaction.objectStore("gatepass").get("customGatePass");
+            request.onsuccess = function(event) {
+                if (event.target.result) displayGatePassFromBlob(event.target.result);
+            };
+        }
 
+        function handleGatePassUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const transaction = db.transaction(["gatepass"], "readwrite");
+                transaction.objectStore("gatepass").put(file, "customGatePass");
+                transaction.oncomplete = () => { displayGatePassFromBlob(file); alert('Gate pass barcode saved!'); };
+            }
+        }
+
+        function displayGatePassFromBlob(blob) {
+            const fileURL = URL.createObjectURL(blob);
+            document.getElementById('gatePassDisplayImg').src = fileURL;
+            document.getElementById('gatePassContainer').style.display = 'block';
+        }
+
+        function removeGatePass() {
+            if (!db) return;
+            const transaction = db.transaction(["gatepass"], "readwrite");
+            transaction.objectStore("gatepass").delete("customGatePass");
+            transaction.oncomplete = () => {
+                document.getElementById('gatePassContainer').style.display = 'none';
+                document.getElementById('gatePassDisplayImg').src = '';
+                document.getElementById('gatePassFileInput').value = '';
+                alert('Gate pass removed.');
+            };
+        }
+
+        // --- Countdown Timer Logic ---
+        const eventDate = new Date("September 5, 2026 18:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = eventDate - now;
+
+            if (distance < 0) {
+                document.getElementById("countdown").innerHTML = "<p style='color: #10b981; font-weight: 600;'>The event has started or concluded!</p>";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = String(days).padStart(2, '0');
+            document.getElementById("hours").innerText = String(hours).padStart(2, '0');
+            document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
+            document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // --- Admin Authentication ---
+        function loginAdmin() {
+            const pass = document.getElementById('adminPassword').value;
+            if (pass === 'admin123') {
+                document.getElementById('loginArea').style.display = 'none';
+                document.getElementById('adminControlsArea').style.display = 'flex';
+            } else {
+                alert('Incorrect password! Try "admin123"');
+            }
+        }
+    </script>
 </body>
 </html>
