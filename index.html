@@ -340,7 +340,7 @@
             letter-spacing: 1px;
         }
 
-        /* Gate Pass Section (Plain Display without Scratch) */
+        /* Gate Pass Section (Hidden initially until "View Gate Pass" is clicked) */
         .gatepass-container {
             display: none;
             margin-bottom: 30px;
@@ -348,6 +348,7 @@
             border: 1px solid rgba(245, 158, 11, 0.4);
             padding: 20px;
             border-radius: 20px;
+            animation: fadeInPage 0.5s ease forwards;
         }
 
         .gatepass-title {
@@ -380,6 +381,35 @@
             object-fit: contain;
             padding: 10px;
             display: block;
+        }
+
+        /* View Gate Pass Bottom Button */
+        .view-pass-btn-container {
+            display: none;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .view-pass-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .view-pass-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
         }
 
         /* Admin Section Styling (Hidden by default) */
@@ -504,7 +534,7 @@
             </div>
         </div>
 
-        <!-- PAGE 2: Event Details, Countdown, and Gate Pass Barcode (Fully responsive across Mobile & Desktop) -->
+        <!-- PAGE 2: Event Details, Countdown, and View Gate Pass Button -->
         <div class="page" id="page2">
             <!-- Detailed Agenda Section -->
             <div class="agenda-section">
@@ -555,7 +585,12 @@
                 </div>
             </div>
 
-            <!-- Gate Pass Barcode Section (Plain Display - Fixed for iOS & Android) -->
+            <!-- View Gate Pass Button at the bottom of Page 2 -->
+            <div class="view-pass-btn-container" id="viewPassBtnContainer">
+                <button type="button" class="view-pass-btn" onclick="revealGatePass()">View Gate Pass </button>
+            </div>
+
+            <!-- Gate Pass Barcode Section (Hidden by default, reveals only when button is clicked) -->
             <div class="gatepass-container" id="gatePassContainer">
                 <div class="gatepass-title">Your Gate Pass Barcode</div>
                 <div class="gatepass-wrapper">
@@ -604,16 +639,15 @@
             
             if (pageNum === 1) {
                 setTimeout(initPage1ScratchCard, 50);
-            } else if (pageNum === 2) {
-                // Force mobile layout recalculation for the barcode container
-                setTimeout(() => {
-                    const gatePassContainer = document.getElementById('gatePassContainer');
-                    if (gatePassContainer.style.display === 'block') {
-                        gatePassContainer.style.display = 'none';
-                        void gatePassContainer.offsetHeight; // trigger reflow
-                        gatePassContainer.style.display = 'block';
-                    }
-                }, 50);
+            }
+        }
+
+        // --- Reveal Gate Pass Barcode on button click ---
+        function revealGatePass() {
+            const gatePassContainer = document.getElementById('gatePassContainer');
+            if (gatePassContainer) {
+                gatePassContainer.style.display = 'block';
+                gatePassContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -756,13 +790,17 @@
             canvas.addEventListener('touchend', () => { isDrawing = false; });
         }
 
-        // --- Gate Pass Handlers (Plain Display optimized for mobile browsers) ---
+        // --- Gate Pass Handlers ---
         function loadSavedGatePass() {
             if (!db) return;
             const transaction = db.transaction(["gatepass"], "readonly");
             const request = transaction.objectStore("gatepass").get("customGatePass");
             request.onsuccess = function(event) {
-                if (event.target.result) displayGatePassFromBlob(event.target.result);
+                if (event.target.result) {
+                    const fileURL = URL.createObjectURL(event.target.result);
+                    document.getElementById('gatePassDisplayImg').src = fileURL;
+                    document.getElementById('viewPassBtnContainer').style.display = 'block';
+                }
             };
         }
 
@@ -771,17 +809,13 @@
                 const file = input.files[0];
                 const transaction = db.transaction(["gatepass"], "readwrite");
                 transaction.objectStore("gatepass").put(file, "customGatePass");
-                transaction.oncomplete = () => { displayGatePassFromBlob(file); alert('Gate pass barcode saved!'); };
+                transaction.oncomplete = () => {
+                    const fileURL = URL.createObjectURL(file);
+                    document.getElementById('gatePassDisplayImg').src = fileURL;
+                    document.getElementById('viewPassBtnContainer').style.display = 'block';
+                    alert('Gate pass barcode saved!');
+                };
             }
-        }
-
-        function displayGatePassFromBlob(blob) {
-            const fileURL = URL.createObjectURL(blob);
-            const imgEl = document.getElementById('gatePassDisplayImg');
-            imgEl.src = fileURL;
-            // Force display block and handle layout recalculation for mobile webkit engines
-            const container = document.getElementById('gatePassContainer');
-            container.style.display = 'block';
         }
 
         function removeGatePass() {
@@ -790,6 +824,7 @@
             transaction.objectStore("gatepass").delete("customGatePass");
             transaction.oncomplete = () => {
                 document.getElementById('gatePassContainer').style.display = 'none';
+                document.getElementById('viewPassBtnContainer').style.display = 'none';
                 document.getElementById('gatePassDisplayImg').src = '';
                 document.getElementById('gatePassFileInput').value = '';
                 alert('Gate pass removed.');
