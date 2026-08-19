@@ -147,7 +147,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             background: #111;
             position: relative;
-            height: 180px;
+            height: 220px;
         }
 
         .scratch-preview-container video {
@@ -169,7 +169,7 @@
 
         h1 {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2.5rem, 5vw, 3.6rem);
+            font-size: clamp(2.5rem, 1vw, 3.6rem);
             margin-bottom: 15px;
             color: #ffffff;
             letter-spacing: -0.5px;
@@ -518,18 +518,16 @@
 
     <div class="container">
         
-        <!-- PAGE 1: Invitation & Scratch Card preview that auto-switches on completion -->
+        <!-- PAGE 1: Invitation & Scratch Card preview -->
         <div class="page active" id="page1">
             <h1>Let's Get-Together</h1>
-            <p class="subtitle"> Come for the friendship 
-Stay for the good times
-Leave with stories, we probably shouldn't tell !</p>
+            <p class="subtitle"> One gathering countless laughs Leave with stories, we probably shouldn't tell!</p>
             
             <div class="tag">You're Invited</div>
 
             <div class="scratch-preview-container" id="page1ScratchContainer">
-                <video autoplay muted loop playsinline>
-                    <source src="https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-41642-large.mp4" type="video/mp4">
+                <video id="scratchVideoElement" autoplay muted loop playsinline>
+                    <source id="scratchVideoSource" src="https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-41642-large.mp4" type="video/mp4">
                 </video>
                 <canvas id="page1ScratchCanvas" class="scratch-preview-canvas"></canvas>
             </div>
@@ -542,9 +540,9 @@ Leave with stories, we probably shouldn't tell !</p>
                 <h2>Event Details</h2>
                 <div class="agenda-grid">
                     <div class="agenda-item">
-                        <span>6:00 PM - 7:00 PM</span>
-                        <h4>Welcome & Mocktails</h4>
-                        <p>Networking, high-energy beats, and refreshing signature drinks.</p>
+                        <span>6:00 PM Onwards</span>
+                        <h4>Welcome & Followed by Dinner</h4>
+                        <p></p>
                     </div>
                 </div>
             </div>
@@ -609,11 +607,21 @@ Leave with stories, we probably shouldn't tell !</p>
             <div class="admin-controls" id="adminControlsArea" style="max-width: 450px; margin: 0 auto;">
                 <p style="color: #34d399; font-size: 0.9rem; text-align: center; margin-bottom: 5px;">✔ Logged in successfully</p>
                 
-                <div>
-                    <label>Upload Permanent Video (Background)</label>
+                <!-- Background Video Control -->
+                <div style="margin-bottom: 15px;">
+                    <label>Upload Background Video (Page Full-Screen)</label>
                     <div class="file-input-wrapper">
-                        <input type="file" id="bgVideoFileInput" accept="video/*" onchange="handleVideoUpload(this)">
-                        <button type="button" class="remove-btn" onclick="removeBgVideo()">Reset Video</button>
+                        <input type="file" id="bgVideoFileInput" accept="video/*" onchange="handleBgVideoUpload(this)">
+                        <button type="button" class="remove-btn" onclick="removeBgVideo()">Reset BG</button>
+                    </div>
+                </div>
+
+                <!-- 2nd Video File Control (Scratch Card Video) -->
+                <div>
+                    <label>Upload Scratch Video (1st Page Box)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="scratchVideoFileInput" accept="video/*" onchange="handleScratchVideoUpload(this)">
+                        <button type="button" class="remove-btn" onclick="removeScratchVideo()">Reset Scratch</button>
                     </div>
                 </div>
             </div>
@@ -651,7 +659,7 @@ Leave with stories, we probably shouldn't tell !</p>
 
         // --- IndexedDB Setup for Permanent Storage (Videos Only) ---
         let db;
-        const dbRequest = indexedDB.open("PartyAppDB", 3);
+        const dbRequest = indexedDB.open("PartyAppDB", 4);
 
         dbRequest.onupgradeneeded = function(event) {
             db = event.target.result;
@@ -660,35 +668,57 @@ Leave with stories, we probably shouldn't tell !</p>
 
         dbRequest.onsuccess = function(event) {
             db = event.target.result;
-            loadSavedVideo();
+            loadSavedVideos();
             setTimeout(initPage1ScratchCard, 100);
         };
 
         // --- Video Storage Handlers ---
-        function loadSavedVideo() {
+        function loadSavedVideos() {
             if (!db) return;
-            const transaction = db.transaction(["videos"], "readonly");
-            const request = transaction.objectStore("videos").get("customBgVideo");
-            request.onsuccess = function(event) {
-                if (event.target.result) playVideoFromBlob(event.target.result);
+            
+            const bgTx = db.transaction(["videos"], "readonly");
+            const bgReq = bgTx.objectStore("videos").get("customBgVideo");
+            bgReq.onsuccess = function(event) {
+                if (event.target.result) playVideoFromBlob(event.target.result, 'bgVideoElement', 'videoSource');
+            };
+
+            const scratchTx = db.transaction(["videos"], "readonly");
+            const scratchReq = scratchTx.objectStore("videos").get("customScratchVideo");
+            scratchReq.onsuccess = function(event) {
+                if (event.target.result) playVideoFromBlob(event.target.result, 'scratchVideoElement', 'scratchVideoSource');
             };
         }
 
-        function handleVideoUpload(input) {
+        function handleBgVideoUpload(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const transaction = db.transaction(["videos"], "readwrite");
                 transaction.objectStore("videos").put(file, "customBgVideo");
-                transaction.oncomplete = () => { playVideoFromBlob(file); alert('Background video saved!'); };
+                transaction.oncomplete = () => { 
+                    playVideoFromBlob(file, 'bgVideoElement', 'videoSource'); 
+                    alert('Background video saved!'); 
+                };
             }
         }
 
-        function playVideoFromBlob(blob) {
+        function handleScratchVideoUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const transaction = db.transaction(["videos"], "readwrite");
+                transaction.objectStore("videos").put(file, "customScratchVideo");
+                transaction.oncomplete = () => { 
+                    playVideoFromBlob(file, 'scratchVideoElement', 'scratchVideoSource'); 
+                    alert('Scratch video saved!'); 
+                };
+            }
+        }
+
+        function playVideoFromBlob(blob, videoElementId, sourceId) {
             const fileURL = URL.createObjectURL(blob);
-            const bgVideoElement = document.getElementById('bgVideoElement');
-            document.getElementById('videoSource').src = fileURL;
-            bgVideoElement.load();
-            bgVideoElement.play().catch(() => {});
+            const videoElement = document.getElementById(videoElementId);
+            document.getElementById(sourceId).src = fileURL;
+            videoElement.load();
+            videoElement.play().catch(() => {});
         }
 
         function removeBgVideo() {
@@ -704,12 +734,25 @@ Leave with stories, we probably shouldn't tell !</p>
             };
         }
 
-        // --- Page 1 Scratch Card Setup (Auto-transitions to Page 2 when scratched) ---
+        function removeScratchVideo() {
+            if (!db) return;
+            const transaction = db.transaction(["videos"], "readwrite");
+            transaction.objectStore("videos").delete("customScratchVideo");
+            transaction.oncomplete = () => {
+                document.getElementById('scratchVideoSource').src = "https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-41642-large.mp4";
+                document.getElementById('scratchVideoElement').load();
+                document.getElementById('scratchVideoElement').play();
+                document.getElementById('scratchVideoFileInput').value = '';
+                alert('Reset scratch video.');
+            };
+        }
+
+        // --- Page 1 Scratch Card Setup ---
         function initPage1ScratchCard() {
             const canvas = document.getElementById('page1ScratchCanvas');
             if (!canvas || canvas.offsetWidth === 0) return;
             const ctx = canvas.getContext('2d');
-            let popperDone = false;
+            let transitionTriggered = false;
 
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
@@ -724,6 +767,15 @@ Leave with stories, we probably shouldn't tell !</p>
             ctx.fillText('Scratch Here', canvas.width / 2, canvas.height / 2);
 
             let isDrawing = false;
+
+            function executeTransition() {
+                if (transitionTriggered) return;
+                transitionTriggered = true;
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+                setTimeout(() => {
+                    goToPage(2);
+                }, 400);
+            }
 
             function getMousePos(e) {
                 const rect = canvas.getBoundingClientRect();
@@ -740,18 +792,16 @@ Leave with stories, we probably shouldn't tell !</p>
                 ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
                 ctx.fill();
 
-                if (!popperDone) {
+                if (!transitionTriggered) {
                     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     let cleared = 0;
                     for (let i = 3; i < imgData.data.length; i += 4) {
                         if (imgData.data[i] === 0) cleared++;
                     }
+                    // Triggers page transition when more than 40% of the card is scratched
                     if (cleared / (imgData.data.length / 4) > 0.40) {
-                        popperDone = true;
-                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-                        setTimeout(() => {
-                            goToPage(2);
-                        }, 400);
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        executeTransition();
                     }
                 }
             }
