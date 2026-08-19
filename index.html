@@ -387,7 +387,7 @@
         .view-pass-btn-container {
             display: none;
             margin-top: 20px;
-            margin-bottom: 10px;
+            margin-bottom: 25px;
         }
 
         .view-pass-btn {
@@ -566,6 +566,11 @@ Leave with stories, we probably shouldn't tell !</p>
                 </div>
             </div>
 
+            <!-- View Gate Pass Button moved above the countdown -->
+            <div class="view-pass-btn-container" id="viewPassBtnContainer">
+                <button type="button" class="view-pass-btn" onclick="revealGatePass()">View Gate Pass </button>
+            </div>
+
             <!-- Countdown Timer -->
             <div class="countdown-container">
                 <div class="countdown-title">Countdown to the Event</div>
@@ -575,11 +580,6 @@ Leave with stories, we probably shouldn't tell !</p>
                     <div class="time-box"><span id="minutes">00</span><label>Mins</label></div>
                     <div class="time-box"><span id="seconds">00</span><label>Secs</label></div>
                 </div>
-            </div>
-
-            <!-- View Gate Pass Button at the bottom of Page 2 -->
-            <div class="view-pass-btn-container" id="viewPassBtnContainer">
-                <button type="button" class="view-pass-btn" onclick="revealGatePass()">View Gate Pass </button>
             </div>
 
             <!-- Gate Pass Barcode Section (Hidden by default, reveals only when button is clicked) -->
